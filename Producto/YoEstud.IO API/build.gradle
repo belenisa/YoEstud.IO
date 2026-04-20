@@ -1,36 +1,52 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.0.5'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '4.0.5'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+    // AGREGADO: Necesario para las versiones más recientes de Spring AI
+    maven { url 'https://repo.spring.io/milestone' }
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-mongodb'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-mongodb-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testCompileOnly 'org.projectlombok:lombok'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testAnnotationProcessor 'org.projectlombok:lombok'
+    // Persistencia
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // CORREGIDO: nombre oficial
+    
+    // Web
+    implementation 'org.springframework.boot:spring-boot-starter-web' // CORREGIDO: simplificado (incluye webmvc)
+    
+    // IA Gemini 3 Flash
+    implementation 'org.springframework.ai:spring-ai-google-genai-spring-boot-starter'
+    
+    // Herramientas
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // Testing (Simplificado y corregido)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:1.2.0"
+    }
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
