@@ -1,10 +1,10 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.5'
+    id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.example'
+group = 'com.yoestudio'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -15,36 +15,34 @@ java {
 
 repositories {
     mavenCentral()
-    // AGREGADO: Necesario para las versiones más recientes de Spring AI
-    maven { url 'https://repo.spring.io/milestone' }
 }
 
 dependencies {
-    // Persistencia
+    // Web y Validación (Aquí ya viene RestTemplate)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
+    // Seguridad y JWT
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+    
+    // Persistencia Relacional (PostgreSQL / NeonDB)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // CORREGIDO: nombre oficial
+    implementation 'org.postgresql:postgresql'
     
-    // Web
-    implementation 'org.springframework.boot:spring-boot-starter-web' // CORREGIDO: simplificado (incluye webmvc)
-    
-    // IA Gemini 3 Flash
-    implementation 'org.springframework.ai:spring-ai-google-genai-spring-boot-starter'
+    // Persistencia No Relacional (MongoDB)
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     
     // Herramientas
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
     
-    // Testing (Simplificado y corregido)
+    // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.ai:spring-ai-bom:1.2.0"
-    }
 }
 
 tasks.named('test') {
