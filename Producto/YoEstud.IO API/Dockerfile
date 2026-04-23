@@ -7,6 +7,9 @@ WORKDIR /app
 # Copiamos todo el proyecto
 COPY . .
 
+# CORRECCIÓN AQUÍ: Otorgar permisos de ejecución al wrapper
+RUN chmod +x gradlew
+
 # Usamos el Gradle Wrapper del proyecto
 RUN ./gradlew build -x test
 
