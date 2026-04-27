@@ -10,20 +10,17 @@ class Configuracion : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        setContentView(R.layout.configuracion_act)
 
-        // 1️⃣ Pedimos las apps al celular
         val pm = packageManager
         val apps = pm.getInstalledApplications(0)
 
-        // 2️⃣ Sacamos los nombres
         val nombresApps = ArrayList<String>()
         for (app in apps) {
             val nombre = pm.getApplicationLabel(app).toString()
             nombresApps.add(nombre)
         }
 
-        // 3️⃣ Mostramos la lista
         val lista = findViewById<ListView>(R.id.listaApps)
         val adaptador = ArrayAdapter(
             this,
