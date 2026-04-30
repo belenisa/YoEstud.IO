@@ -1,27 +1,16 @@
 package com.example.yoestudio
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.appcompat.app.AppCompatActivity
 import com.example.yoestudio.Pantallas.Configuracion
-import com.example.yoestudio.ui.theme.YoEstudioTheme
 
-class MainActivity : ComponentActivity() {
+
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            YoEstudioTheme {
-                        Configuracion()
-            }
-        }
+        setContentView(android.R.layout.simple_list_item_1)
+        startActivity(Intent(this, Configuracion::class.java))
+        finish()
     }
 }

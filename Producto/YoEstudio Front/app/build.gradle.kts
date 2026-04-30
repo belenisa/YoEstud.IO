@@ -49,6 +49,8 @@ dependencies {
 
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.material)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
