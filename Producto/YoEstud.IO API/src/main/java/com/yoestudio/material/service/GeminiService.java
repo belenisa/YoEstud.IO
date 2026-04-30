@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 public class GeminiService {
 
-    @Value("${SPRING_AI_GOOGLE_AI_API_KEY}")
+    @Value("${spring.ai.google.ai.api-key}")
     private String apiKey;
 
     private final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=";
