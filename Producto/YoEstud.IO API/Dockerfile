@@ -22,5 +22,4 @@ WORKDIR /app
 # Copiamos el JAR generado por Gradle
 COPY --from=build /app/build/libs/*.jar app.jar
 
-EXPOSE 10000
 ENTRYPOINT ["java", "-jar", "app.jar"]
