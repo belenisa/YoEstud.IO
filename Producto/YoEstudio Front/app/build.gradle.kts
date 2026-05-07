@@ -49,6 +49,10 @@ dependencies {
 
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.compose.navigation)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.runtime)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -60,4 +64,10 @@ dependencies {
 
     // Para convertir Drawables de Android a Painter de Compose
     implementation("com.google.accompanist:accompanist-drawablepainter:0.32.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
 }
