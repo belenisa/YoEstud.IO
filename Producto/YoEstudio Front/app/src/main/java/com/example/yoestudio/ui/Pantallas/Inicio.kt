@@ -1,4 +1,4 @@
-package com.example.yoestudio.Pantallas
+package com.example.yoestudio.ui.Pantallas
 
 
 
@@ -18,16 +18,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.yoestudio.Global.BotonAsistente
-import com.example.yoestudio.ui.theme.AppNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Inicio(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    navController: NavHostController   // ✅ se recibe, no se crea
+    navController: NavHostController
 ) {
     Scaffold(
         topBar = {

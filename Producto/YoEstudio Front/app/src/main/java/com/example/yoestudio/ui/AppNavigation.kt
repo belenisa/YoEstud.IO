@@ -6,18 +6,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.yoestudio.Global.BotonAsistente
-import com.example.yoestudio.Pantallas.Inicio
-import com.example.yoestudio.Pantallas.PantallaConfiguracion
-import com.example.yoestudio.Pantallas.PantallaIA
+import com.example.yoestudio.ui.Pantallas.Inicio
+import com.example.yoestudio.ui.Pantallas.PantallaConfiguracion
+import com.example.yoestudio.ui.Pantallas.PantallaIA
 import com.example.yoestudio.ViewModel.AsistenteView
+import com.example.yoestudio.ViewModel.ConfiguracionView
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     drawerState: DrawerState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    configuracionViewModel: ConfiguracionView
 ) {
     NavHost(
         navController = navController,
@@ -34,13 +35,18 @@ fun AppNavigation(
         composable("configuracion") {
             PantallaConfiguracion(
                 drawerState = drawerState,
-                scope = scope
+                scope = scope,
+                viewModel = configuracionViewModel
             )
         }
 
         composable("pantalla_ia") {
             val viewModel: AsistenteView = viewModel()
             PantallaIA(viewModel = viewModel)
+        }
+
+        composable("bloqueopantalla"){
+
         }
     }
 }

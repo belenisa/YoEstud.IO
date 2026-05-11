@@ -12,9 +12,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.yoestudio.Global.BotonAsistente
 import com.example.yoestudio.Global.MenuLateral
+import com.example.yoestudio.ViewModel.ConfiguracionView
 import com.example.yoestudio.ui.theme.AppNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +29,8 @@ class MainActivity : AppCompatActivity() {
             val navController = rememberNavController()
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             val scope = rememberCoroutineScope()
+            val configuracionViewModel: ConfiguracionView = viewModel()
+
 
             ModalNavigationDrawer(
                 drawerState = drawerState,
@@ -51,7 +55,8 @@ class MainActivity : AppCompatActivity() {
                         AppNavigation(
                             navController = navController,
                             drawerState = drawerState,
-                            scope = scope
+                            scope = scope,
+                            configuracionViewModel = configuracionViewModel
                         )
                     }
                 }
