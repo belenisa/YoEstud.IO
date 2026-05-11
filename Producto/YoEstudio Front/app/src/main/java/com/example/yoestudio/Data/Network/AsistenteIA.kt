@@ -18,8 +18,12 @@ interface AsistenteIA {
     ): Response<String>
 
     // Puedes mantener tus otros métodos aquí abajo
+
     @POST("api/ai/chat")
-    suspend fun enviarMensaje(@Body mensaje: String): Response<String>
+    suspend fun enviarMensaje(
+        @Body mensaje: RequestBody
+    ): Response<String>
+
 
     // Se conecta con @PostMapping("/estudiar")
     @POST("api/ai/estudiar")

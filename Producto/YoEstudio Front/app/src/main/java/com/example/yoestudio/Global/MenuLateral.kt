@@ -1,6 +1,7 @@
 package com.example.yoestudio.Global
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalDrawerSheet
@@ -19,48 +20,35 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.yoestudio.Pantallas.Inicio
 import com.example.yoestudio.Pantallas.PantallaConfiguracion
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun MenuLateral(navController: NavController) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-    var pantallaActual by remember { mutableStateOf("inicio") }
+fun MenuLateral(
+    navController: NavController,
+    drawerState: DrawerState,
+    scope: CoroutineScope
+) {
+    ModalDrawerSheet {
+        Text("Menú", modifier = Modifier.padding(16.dp))
+        HorizontalDivider()
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                Text("Menú", modifier = Modifier.padding(16.dp))
-                HorizontalDivider()
-                NavigationDrawerItem(
-                    label = { Text(text = "Inicio") },
-                    selected = pantallaActual == "inicio",
-                    onClick = {
-                        pantallaActual = "inicio"
-                        scope.launch { drawerState.close() }
-                    }
-                )
-                NavigationDrawerItem(
-                    label = { Text(text = "Configuración") },
-                    selected = pantallaActual == "configuracion",
-                    onClick = {
-                        pantallaActual = "configuracion"
-                        scope.launch { drawerState.close() }
-                    }
-                )
+        NavigationDrawerItem(
+            label = { Text("Inicio") },
+            selected = false,
+            onClick = {
+                navController.navigate("inicio")
+                scope.launch { drawerState.close() }
             }
-        }
-    ) {
-        androidx.compose.material3.Scaffold(
-        ) { paddingValues ->
-            // El Box ayuda a que el contenido respete los espacios del Scaffold
-            androidx.compose.foundation.layout.Box(modifier = Modifier.padding(paddingValues)) {
-                when (pantallaActual) {
-                    "inicio" -> Inicio(drawerState = drawerState, scope = scope)
-                    "configuracion" -> PantallaConfiguracion(drawerState = drawerState, scope = scope)
-                }
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Configuración") },
+            selected = false,
+            onClick = {
+                navController.navigate("configuracion")
+                scope.launch { drawerState.close() }
             }
-        }
+        )
     }
 }

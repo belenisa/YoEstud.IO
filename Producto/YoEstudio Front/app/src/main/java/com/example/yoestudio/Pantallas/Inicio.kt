@@ -17,16 +17,18 @@ import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.yoestudio.Global.BotonAsistente
 import com.example.yoestudio.ui.theme.AppNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Inicio(drawerState: DrawerState, scope: CoroutineScope) {
-    // 1. Creamos el controlador que se compartirá en TODA la pantalla
-    val navController = rememberNavController()
-
+fun Inicio(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
+    navController: NavHostController   // ✅ se recibe, no se crea
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -40,20 +42,12 @@ fun Inicio(drawerState: DrawerState, scope: CoroutineScope) {
                 }
             )
         },
-        // 2. IMPORTANTE: Pasamos el MISMO navController al botón
         floatingActionButton = {
             BotonAsistente(navController = navController)
         }
     ) { paddingValues ->
-        // 3. El contenedor debe envolver al NavHost
         Box(modifier = Modifier.padding(paddingValues)) {
-            // 4. Llamamos a tu lógica de navegación pasándole el controlador
-            // Esto conecta el "cable" (navController) con el "mapa" (NavHost)
-            AppNavigation(
-                navController = navController,
-                drawerState = drawerState,
-                scope = scope
-            )
+            Text("Pantalla de inicio") // Contenido real
         }
     }
 }

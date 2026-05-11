@@ -24,10 +24,18 @@ fun AppNavigation(
         startDestination = "inicio"
     ) {
         composable("inicio") {
-            Inicio(drawerState = drawerState, scope = scope)
+            Inicio(
+                drawerState = drawerState,
+                scope = scope,
+                navController = navController   // ✅ agregado
+            )
         }
+
         composable("configuracion") {
-            PantallaConfiguracion(drawerState = drawerState, scope = scope)
+            PantallaConfiguracion(
+                drawerState = drawerState,
+                scope = scope
+            )
         }
 
         composable("pantalla_ia") {
