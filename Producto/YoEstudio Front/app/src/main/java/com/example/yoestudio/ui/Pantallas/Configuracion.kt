@@ -1,5 +1,6 @@
 package com.example.yoestudio.ui.Pantallas
 
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 
@@ -29,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,17 +52,26 @@ fun PantallaConfiguracion(
     scope: CoroutineScope,
     viewModel: ConfiguracionView
 ) {
+
     val context = LocalContext.current
     val pm = context.packageManager
 
-    val seleccionadas by viewModel.appsSeleccionadas.collectAsState()
-    val tiempo by viewModel.tiempoBloqueo.collectAsState()
-    var inputTiempo by remember { mutableStateOf(tiempo.toString()) }
-
+    // Obtenemos la lista de apps igual que antes
     val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
 
+
+    val seleccionadas by viewModel.appsSeleccionadas.collectAsState()
+
+
     val appsUsuario = apps.filter { app ->
-        val launchIntent = pm.getLaunchIntentForPackage(app.packageName)
+
+        val nombreApp = pm.getApplicationLabel(app).toString()
+        val launchIntent = try {
+            pm.getLaunchIntentForPackage(app.packageName)
+                ?: pm.getLeanbackLaunchIntentForPackage(app.packageName)
+        } catch (e: Exception) {
+            null
+        }
 
         val paquetesBloqueados = listOf(
             "com.android.settings",
@@ -74,14 +85,20 @@ fun PantallaConfiguracion(
             "com.google.android.dialer",
             "com.google.android.apps.messaging",
             "com.android.simtoolkit",
-            "com.android.stk"
+            "com.android.stk",
+            "com.google.android.apps.restore",
+            "com.android.switchaccess",
+            "com.google.android.marvin.talkback"
+
         )
 
-        launchIntent != null && app.packageName !in paquetesBloqueados
+        launchIntent != null &&
+                app.packageName !in paquetesBloqueados &&
+                !nombreApp.contains("Switch Access", ignoreCase = true)
+
     }.sortedBy {
         pm.getApplicationLabel(it).toString()
     }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -101,34 +118,6 @@ fun PantallaConfiguracion(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
-            // TIEMPO
-            Text(
-                text = "Tiempo de uso (segundos)",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(16.dp)
-            )
-
-            Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-
-                TextField(
-                    value = inputTiempo,
-                    onValueChange = { inputTiempo = it },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Button(
-                    onClick = {
-                        val segundos = inputTiempo.toIntOrNull() ?: 10
-                        viewModel.cambiarTiempo(segundos)
-                    }
-                ) {
-                    Text("Guardar")
-                }
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -151,14 +140,12 @@ fun PantallaConfiguracion(
         }
     }
 }
+
 @Composable
-fun FilaApp(
-    app: ApplicationInfo,
-    pm: PackageManager,
-    seleccionado: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
+fun FilaApp(app: ApplicationInfo, pm: PackageManager,
+            seleccionado: Boolean,
+            onCheckedChange: (Boolean) -> Unit)
+{ Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
@@ -172,19 +159,33 @@ fun FilaApp(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        val iconDrawable = pm.getApplicationIcon(app)
-        Image(
-            painter = rememberDrawablePainter(drawable = iconDrawable),
-            contentDescription = null,
-            modifier = Modifier.size(48.dp)
-        )
+        val iconDrawable = try {
+            pm.getApplicationIcon(app)
+        } catch (e: Exception) {
+            null
+        }
+
+        if (iconDrawable != null) {
+            Image(
+                painter = rememberDrawablePainter(drawable = iconDrawable),
+                contentDescription = null,
+                modifier = Modifier.size(48.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.width(16.dp))
 
+        val nombreApp = try {
+            pm.getApplicationLabel(app).toString()
+        } catch (e: Exception) {
+            app.packageName
+        }
+
         Text(
-            text = pm.getApplicationLabel(app).toString(),
+            text = nombreApp,
             style = MaterialTheme.typography.bodyLarge
         )
     }
 }
+
 
