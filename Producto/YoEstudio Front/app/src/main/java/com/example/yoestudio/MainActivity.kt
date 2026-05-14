@@ -1,5 +1,7 @@
 package com.example.yoestudio
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.yoestudio.Global.BotonAsistente
 import com.example.yoestudio.Global.MenuLateral
+import com.example.yoestudio.Service.MonitoreoBloqueo
 import com.example.yoestudio.ViewModel.ConfiguracionView
 import com.example.yoestudio.ui.theme.AppNavigation
 
@@ -61,6 +64,14 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+    private fun iniciarServicioMonitoreo() {
+        val intent = Intent(this, MonitoreoBloqueo::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
         }
     }
 }
