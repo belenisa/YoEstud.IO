@@ -1,5 +1,6 @@
 package com.example.yoestudio.Service
 
+
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
@@ -11,43 +12,52 @@ import com.example.yoestudio.utils.getAppActual
 class MonitoreoBloqueo : Service() {
 
     private var ultimaApp: String? = null
+    private var isRunning = false
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (!isRunning) {
+            isRunning = true
+            iniciarMonitoreo()
+        }
+        return START_STICKY
+    }
 
+    private fun iniciarMonitoreo() {
         Thread {
-            while (true) {
-
+            while (isRunning) {
                 val appActual = getAppActual(this)
                 val ahora = System.currentTimeMillis()
 
-                val desbloqueada = (
-                        ConfiguracionBloqueo.appDesbloqueada == appActual &&
-                                ahora < ConfiguracionBloqueo.tiempoFin
-                        )
+                val estaEnPeriodoDeGracia = ConfiguracionBloqueo.appDesbloqueada == appActual &&
+                        ahora < ConfiguracionBloqueo.tiempoFin
 
-                // detecta cambio de app
-                if (appActual != ultimaApp) {
-                    ultimaApp = appActual
+                //Bloqueo
+                if (ConfiguracionBloqueo.appsBloqueadas.contains(appActual)) {
 
-                    if (appActual in ConfiguracionBloqueo.appsBloqueadas && !desbloqueada) {
+                    if (appActual != ultimaApp && !estaEnPeriodoDeGracia) {
+                        abrirPantallaBloqueo(this, appActual)
+                    }
+                    else if (appActual == ConfiguracionBloqueo.appDesbloqueada && ahora >= ConfiguracionBloqueo.tiempoFin) {
+                        ConfiguracionBloqueo.appDesbloqueada = null
                         abrirPantallaBloqueo(this, appActual)
                     }
                 }
 
-                // si se acabó el tiempo → bloquea otra vez
-                if (
-                    ConfiguracionBloqueo.appDesbloqueada == appActual &&
-                    ahora >= ConfiguracionBloqueo.tiempoFin
-                ) {
-                    abrirPantallaBloqueo(this, appActual)
-                }
+                ultimaApp = appActual
 
-                Thread.sleep(1500)
+                try {
+                    Thread.sleep(1500)
+                } catch (e: InterruptedException) {
+                    break
+                }
             }
         }.start()
-
-        return START_STICKY
     }
 
-    override fun onBind(intent: Intent?) = null
+    override fun onDestroy() {
+        isRunning = false
+        super.onDestroy()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? = null
 }

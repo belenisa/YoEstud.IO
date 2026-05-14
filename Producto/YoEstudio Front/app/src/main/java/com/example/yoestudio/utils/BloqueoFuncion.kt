@@ -1,6 +1,5 @@
 package com.example.yoestudio.utils
 
-
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
@@ -26,13 +25,13 @@ fun getAppActual (context: Context): String {
 
 
 fun abrirPantallaBloqueo(context: Context, app: String) {
-
     val intent = Intent(context, BloqueoActivity::class.java)
 
+    // Buscamos el tiempo configurado para ESTA app específico
+    val tiempoConfigurado = ConfiguracionBloqueo.tiemposPorApp[app] ?: ConfiguracionBloqueo.tiempoDefault
+
     intent.putExtra("app", app)
-    intent.putExtra("tiempo", ConfiguracionBloqueo.tiempoPantalla)
-
+    intent.putExtra("tiempo", tiempoConfigurado)
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
     context.startActivity(intent)
 }

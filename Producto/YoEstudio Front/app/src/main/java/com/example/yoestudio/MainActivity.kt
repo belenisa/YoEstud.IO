@@ -51,12 +51,12 @@ class MainActivity : AppCompatActivity() {
 
                     Box(modifier = Modifier.padding(paddingValues)) {
 
-                        // 🔹 Navegación central de la app
+                        // Navegación central de la app
                         AppNavigation(
                             navController = navController,
                             drawerState = drawerState,
-                            scope = scope,
-                            configuracionViewModel = configuracionViewModel
+                            scope = scope
+                            ,configuracionViewModel = configuracionViewModel
                         )
                     }
                 }

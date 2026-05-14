@@ -1,12 +1,14 @@
 package com.example.yoestudio.ui.Pantallas
 
-import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.widget.Toast
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,29 +18,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.yoestudio.ViewModel.ConfiguracionView
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
@@ -56,15 +63,11 @@ fun PantallaConfiguracion(
     val context = LocalContext.current
     val pm = context.packageManager
 
-    // Obtenemos la lista de apps igual que antes
+    // Obtenemos la lista de apps
     val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-
-
     val seleccionadas by viewModel.appsSeleccionadas.collectAsState()
 
-
     val appsUsuario = apps.filter { app ->
-
         val nombreApp = pm.getApplicationLabel(app).toString()
         val launchIntent = try {
             pm.getLaunchIntentForPackage(app.packageName)
@@ -89,9 +92,7 @@ fun PantallaConfiguracion(
             "com.google.android.apps.restore",
             "com.android.switchaccess",
             "com.google.android.marvin.talkback"
-
         )
-
         launchIntent != null &&
                 app.packageName !in paquetesBloqueados &&
                 !nombreApp.contains("Switch Access", ignoreCase = true)
@@ -104,88 +105,129 @@ fun PantallaConfiguracion(
             TopAppBar(
                 title = { Text("Configuración") },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        scope.launch { drawerState.open() }
-                    }) {
+                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
                         Icon(Icons.Default.Menu, contentDescription = null)
                     }
                 }
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // LISTA DE APPS
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(top = 70.dp)
+            ) {
                 items(appsUsuario) { app ->
-
                     val isSelected = seleccionadas.contains(app.packageName)
+                    val segundos = viewModel.segundosApps[app.packageName] ?: ""
 
                     FilaApp(
                         app = app,
                         pm = pm,
                         seleccionado = isSelected,
+                        segundos = segundos,
                         onCheckedChange = { checked ->
                             viewModel.RecordarAppSeleccionada(app.packageName, checked)
+                            if (!checked) viewModel.actualizarSegundos(app.packageName, "")
+                        },
+                        onSegundosChange = { nuevosSegundos ->
+                            viewModel.actualizarSegundos(app.packageName, nuevosSegundos)
                         }
                     )
+                }
+            }
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .padding(8.dp)
+            ) {
+                Button(
+                    onClick = {
+                        viewModel.guardarConfiguracionCompleta()
+                        Toast.makeText(context, "Cambios aplicados", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Done, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Guardar Configuración")
                 }
             }
         }
     }
 }
 
+
 @Composable
-fun FilaApp(app: ApplicationInfo, pm: PackageManager,
-            seleccionado: Boolean,
-            onCheckedChange: (Boolean) -> Unit)
-{ Row(
+fun FilaApp(
+    app: ApplicationInfo,
+    pm: PackageManager,
+    seleccionado: Boolean,
+    segundos: String,
+    onCheckedChange: (Boolean) -> Unit,
+    onSegundosChange: (String) -> Unit
+) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Checkbox(
             checked = seleccionado,
             onCheckedChange = onCheckedChange
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
-
-        val iconDrawable = try {
-            pm.getApplicationIcon(app)
-        } catch (e: Exception) {
-            null
-        }
-
+        // Icono de la App
+        val iconDrawable = try { pm.getApplicationIcon(app) } catch (e: Exception) { null }
         if (iconDrawable != null) {
             Image(
                 painter = rememberDrawablePainter(drawable = iconDrawable),
                 contentDescription = null,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(40.dp)
             )
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
-        val nombreApp = try {
-            pm.getApplicationLabel(app).toString()
-        } catch (e: Exception) {
-            app.packageName
-        }
+        // Nombre de la App
+        val nombreApp = try { pm.getApplicationLabel(app).toString() } catch (e: Exception) { app.packageName }
 
         Text(
             text = nombreApp,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
+            maxLines = 1
+        )
+
+        // Input de Segundos
+        OutlinedTextField(
+            value = segundos,
+            onValueChange = { newValue ->
+                // Validación básica: solo permitir números
+                if (newValue.all { it.isDigit() }) {
+                    onSegundosChange(newValue)
+                }
+            },
+            label = { Text("Seg") },
+            modifier = Modifier.width(80.dp),
+            singleLine = true,
+            enabled = seleccionado,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            textStyle = MaterialTheme.typography.bodySmall,
+            colors = TextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            )
         )
     }
 }
-
-

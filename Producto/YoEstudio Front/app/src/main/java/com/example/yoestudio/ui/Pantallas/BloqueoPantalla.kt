@@ -3,37 +3,68 @@ package com.example.yoestudio.ui.Pantallas
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.yoestudio.utils.ConfiguracionBloqueo
+import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BloqueoPantalla( segundos: Int, app: String,
-                     onDesbloquear: () -> Unit)
-{
+fun BloqueoPantalla(
+    segundos: Int,
+    app: String,
+    onDesbloquear: () -> Unit
+) {
+    // Estado para la cuenta regresiva local
+    var segundosRestantes by remember { mutableStateOf(segundos) }
+
+    // Efecto para disminuir el contador cada segundo
+    LaunchedEffect(Unit) {
+        while (segundosRestantes > 0) {
+            delay(1000L)
+            segundosRestantes--
+        }
+    }
+
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-            Text("App bloqueada 🚫")
+            Text(
+                text = "Espera para usar $app ⏳",
+                style = MaterialTheme.typography.headlineMedium
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(onClick = onDesbloquear) {
-                Text("Usar app")
+            if (segundosRestantes > 0) {
+                // Muestra los segundos que faltan
+                Text(
+                    text = "$segundosRestantes",
+                    style = MaterialTheme.typography.displayLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                // El botón solo es funcional cuando el tiempo termina
+                Button(onClick = onDesbloquear) {
+                    Text("Desbloquear app ahora")
+                }
             }
         }
     }
@@ -42,15 +73,14 @@ fun BloqueoPantalla( segundos: Int, app: String,
 
 
 class BloqueoActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Recuperamos el tiempo específico enviado desde abrirPantallaBloqueo
         val segundos = intent.getIntExtra("tiempo", 10)
         val app = intent.getStringExtra("app") ?: ""
 
         setContent {
-
             BloqueoPantalla(segundos, app) {
                 val ahora = System.currentTimeMillis()
 
@@ -62,3 +92,4 @@ class BloqueoActivity : ComponentActivity() {
         }
     }
 }
+
