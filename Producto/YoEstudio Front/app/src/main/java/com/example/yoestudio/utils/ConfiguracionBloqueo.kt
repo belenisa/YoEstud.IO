@@ -3,6 +3,7 @@ package com.example.yoestudio.utils
 
 object ConfiguracionBloqueo {
 
+    var tiempoModoConcentracion: Long = 0
     var tiempoFin: Long = 0
 
     var tiemposPorApp: Map<String, Int> = emptyMap()

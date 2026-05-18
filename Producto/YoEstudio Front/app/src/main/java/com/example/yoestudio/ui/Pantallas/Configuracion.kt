@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +50,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.yoestudio.ViewModel.ConfiguracionView
+import com.example.yoestudio.utils.ConfiguracionBloqueo
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -112,41 +115,50 @@ fun PantallaConfiguracion(
             )
         }
     ) { paddingValues ->
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 70.dp)
-            ) {
-                items(appsUsuario) { app ->
-                    val isSelected = seleccionadas.contains(app.packageName)
-                    val segundos = viewModel.segundosApps[app.packageName] ?: ""
 
-                    FilaApp(
-                        app = app,
-                        pm = pm,
-                        seleccionado = isSelected,
-                        segundos = segundos,
-                        onCheckedChange = { checked ->
-                            viewModel.RecordarAppSeleccionada(app.packageName, checked)
-                            if (!checked) viewModel.actualizarSegundos(app.packageName, "")
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // MODO CONCENTRACIÓN
+                Card(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(8.dp)
+                ) {
+
+                    Button(
+                        onClick = {
+                            val ahora = System.currentTimeMillis()
+
+                            // 🔥 10 minutos = 600000 ms
+                            ConfiguracionBloqueo.tiempoModoConcentracion =
+                                ahora + (10 * 60 * 1000)
+
+                            Toast.makeText(context, "Modo concentración activado (10 min)", Toast.LENGTH_SHORT).show()
                         },
-                        onSegundosChange = { nuevosSegundos ->
-                            viewModel.actualizarSegundos(app.packageName, nuevosSegundos)
-                        }
-                    )
-                }
-            }
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                    ) {
+                        Text("Modo Concentración")
+                    }
 
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.TopCenter)
-                    .padding(8.dp)
-            ) {
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Boton guardar
                 Button(
                     onClick = {
                         viewModel.guardarConfiguracionCompleta()
@@ -154,13 +166,53 @@ fun PantallaConfiguracion(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
                         .height(50.dp),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.Done, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
                     Text("Guardar Configuración")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Lista Apps
+                Card(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                        .weight(1f), // ✅ mejor que height fija
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(8.dp)
+                ) {
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp)
+                    ) {
+
+                        items(appsUsuario) { app ->
+
+                            val isSelected = seleccionadas.contains(app.packageName)
+                            val segundos = viewModel.segundosApps[app.packageName] ?: ""
+
+                            FilaApp(
+                                app = app,
+                                pm = pm,
+                                seleccionado = isSelected,
+                                segundos = segundos,
+                                onCheckedChange = { checked ->
+                                    viewModel.RecordarAppSeleccionada(app.packageName, checked)
+                                    if (!checked) viewModel.actualizarSegundos(app.packageName, "")
+                                },
+                                onSegundosChange = { nuevosSegundos ->
+                                    viewModel.actualizarSegundos(app.packageName, nuevosSegundos)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

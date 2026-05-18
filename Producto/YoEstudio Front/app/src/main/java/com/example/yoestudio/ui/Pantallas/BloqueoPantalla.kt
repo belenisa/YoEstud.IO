@@ -28,6 +28,7 @@ import kotlinx.coroutines.delay
 fun BloqueoPantalla(
     segundos: Int,
     app: String,
+    enModoConcentracion: Boolean,
     onDesbloquear: () -> Unit
 ) {
     // Estado para la cuenta regresiva local
@@ -53,9 +54,17 @@ fun BloqueoPantalla(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(onClick = onDesbloquear) {
+            if (!enModoConcentracion) {
+                Button(onClick = onDesbloquear) {
                     Text("Desbloquear app ahora")
+                }
+            } else {
+                Text(
+                    text = "Modo concentración activo 🔒",
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
+
 
         }
     }
@@ -70,8 +79,11 @@ class BloqueoActivity : ComponentActivity() {
         val segundos = intent.getIntExtra("tiempo", 10)
         val app = intent.getStringExtra("app") ?: ""
 
+        val enModoConcentracion =
+            System.currentTimeMillis() < ConfiguracionBloqueo.tiempoModoConcentracion
+
         setContent {
-            BloqueoPantalla(segundos, app) {
+            BloqueoPantalla(segundos, app, enModoConcentracion) {
 
                 val ahora = System.currentTimeMillis()
 
