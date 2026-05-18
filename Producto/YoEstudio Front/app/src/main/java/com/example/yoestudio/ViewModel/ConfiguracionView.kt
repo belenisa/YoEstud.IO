@@ -15,6 +15,8 @@ class ConfiguracionView: ViewModel() {
     private val _segundosApps = mutableStateMapOf<String, String>()
     val segundosApps: Map<String, String> = _segundosApps
 
+
+
     fun actualizarSegundos(packageName: String, segundos: String) {
         if (segundos.all { it.isDigit() }) {
 

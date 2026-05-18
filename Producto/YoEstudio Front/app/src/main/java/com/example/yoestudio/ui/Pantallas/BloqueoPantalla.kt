@@ -62,21 +62,24 @@ fun BloqueoPantalla(
 }
 
 
-
 class BloqueoActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Recuperamos el tiempo específico enviado desde abrirPantallaBloqueo
         val segundos = intent.getIntExtra("tiempo", 10)
         val app = intent.getStringExtra("app") ?: ""
 
         setContent {
             BloqueoPantalla(segundos, app) {
+
                 val ahora = System.currentTimeMillis()
 
-                ConfiguracionBloqueo.appDesbloqueada = app
-                ConfiguracionBloqueo.tiempoFin = ahora + (segundos * 1000)
+                // ✅ reiniciar el cronómetro desde cero
+                ConfiguracionBloqueo.tiempoFin =
+                    ahora + (segundos * 1000)
+
+                println("✅ NUEVO TIEMPO FIN: ${ConfiguracionBloqueo.tiempoFin}")
 
                 finish()
             }
