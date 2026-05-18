@@ -1,63 +1,58 @@
 package com.example.yoestudio.Service
 
-
-import android.app.Service
+import android.accessibilityservice.AccessibilityService
 import android.content.Intent
-import android.os.IBinder
+import android.view.accessibility.AccessibilityEvent
+import com.example.yoestudio.ui.Pantallas.BloqueoActivity
 import com.example.yoestudio.utils.ConfiguracionBloqueo
-import com.example.yoestudio.utils.abrirPantallaBloqueo
-import com.example.yoestudio.utils.getAppActual
 
+class MonitoreoBloqueo : AccessibilityService() {
 
-class MonitoreoBloqueo : Service() {
+    private var appActual: String? = null
+    private var ultimoBloqueo = 0L
 
-    private var ultimaApp: String? = null
-    private var isRunning = false
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (!isRunning) {
-            isRunning = true
-            iniciarMonitoreo()
+        if (
+            event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+            event?.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+        ) return
+
+        val paquete = event.packageName?.toString() ?: return
+
+        if (paquete == packageName) return
+        if (paquete.contains("inputmethod")) return
+        if (paquete.contains("launcher")) return
+
+        val ahora = System.currentTimeMillis()
+
+        val tiempo = ConfiguracionBloqueo.tiemposPorApp[paquete]
+            ?: ConfiguracionBloqueo.tiempoDefault
+
+        // ✅ iniciar contador solo al cambiar de app
+        if (paquete != appActual) {
+            appActual = paquete
+            ConfiguracionBloqueo.tiempoFin = ahora + (tiempo * 1000)
         }
-        return START_STICKY
+
+        val tiempoTerminado = ahora >= ConfiguracionBloqueo.tiempoFin
+
+        if (
+            ConfiguracionBloqueo.appsBloqueadas.contains(paquete) &&
+            tiempoTerminado
+        ) {
+
+            if (ahora - ultimoBloqueo < 1500) return
+            ultimoBloqueo = ahora
+
+            val intent = Intent(this, BloqueoActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("app", paquete)
+            intent.putExtra("tiempo", tiempo)
+
+            startActivity(intent)
+        }
     }
 
-    private fun iniciarMonitoreo() {
-        Thread {
-            while (isRunning) {
-                val appActual = getAppActual(this)
-                val ahora = System.currentTimeMillis()
-
-                val estaEnPeriodoDeGracia = ConfiguracionBloqueo.appDesbloqueada == appActual &&
-                        ahora < ConfiguracionBloqueo.tiempoFin
-
-                //Bloqueo
-                if (ConfiguracionBloqueo.appsBloqueadas.contains(appActual)) {
-
-                    if (appActual != ultimaApp && !estaEnPeriodoDeGracia) {
-                        abrirPantallaBloqueo(this, appActual)
-                    }
-                    else if (appActual == ConfiguracionBloqueo.appDesbloqueada && ahora >= ConfiguracionBloqueo.tiempoFin) {
-                        ConfiguracionBloqueo.appDesbloqueada = null
-                        abrirPantallaBloqueo(this, appActual)
-                    }
-                }
-
-                ultimaApp = appActual
-
-                try {
-                    Thread.sleep(1500)
-                } catch (e: InterruptedException) {
-                    break
-                }
-            }
-        }.start()
-    }
-
-    override fun onDestroy() {
-        isRunning = false
-        super.onDestroy()
-    }
-
-    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onInterrupt() {}
 }

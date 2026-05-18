@@ -66,12 +66,4 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun iniciarServicioMonitoreo() {
-        val intent = Intent(this, MonitoreoBloqueo::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
-    }
 }

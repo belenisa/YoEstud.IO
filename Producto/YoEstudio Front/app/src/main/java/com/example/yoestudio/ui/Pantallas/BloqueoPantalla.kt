@@ -53,19 +53,10 @@ fun BloqueoPantalla(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (segundosRestantes > 0) {
-                // Muestra los segundos que faltan
-                Text(
-                    text = "$segundosRestantes",
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                // El botón solo es funcional cuando el tiempo termina
-                Button(onClick = onDesbloquear) {
+            Button(onClick = onDesbloquear) {
                     Text("Desbloquear app ahora")
-                }
             }
+
         }
     }
 }
