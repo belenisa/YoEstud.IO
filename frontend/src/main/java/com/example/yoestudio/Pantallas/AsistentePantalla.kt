@@ -98,7 +98,11 @@ fun PantallaIA(viewModel: AsistenteView, navController: NavHostController) {
                         colors = TextFieldDefaults.colors(
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
-                            containerColor = Color(0xFF0D1B2A)
+                            focusedContainerColor = Color(0xFF0D1B2A),
+                            unfocusedContainerColor = Color(0xFF0D1B2A),
+                            cursorColor = Color.White,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
                         )
                     )
 

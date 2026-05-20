@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @Configuration
 @EnableJpaRepositories(basePackages = "com.yoestudio.usuario.repository")
-@EnableMongoRepositories(basePackages = "com.yoestudio.material.repository") 
+@EnableMongoRepositories(basePackages = {"com.yoestudio.material.repository", "com.yoestudio.archivo.repository", "com.yoestudio.chat.repository"}) 
 public class DatabaseConfig {
 }

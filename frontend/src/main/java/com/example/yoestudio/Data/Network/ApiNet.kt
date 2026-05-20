@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 object ApiNet {
 
     
-    private const val BASE_URL = "https://3bdf-152-230-114-34.ngrok-free.app/"
+    private const val BASE_URL = "https://controlless-unfondled-kathryn.ngrok-free.dev/"
     
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -19,6 +19,12 @@ object ApiNet {
 
     private val okHttp = OkHttpClient.Builder()
         .addInterceptor(logging)
+        .addInterceptor { chain ->
+            val request = chain.request().newBuilder()
+                .addHeader("ngrok-skip-browser-warning", "true")
+                .build()
+            chain.proceed(request)
+        }
         .connectTimeout(1, TimeUnit.MINUTES)
         .readTimeout(1, TimeUnit.MINUTES)
         .writeTimeout(1, TimeUnit.MINUTES)

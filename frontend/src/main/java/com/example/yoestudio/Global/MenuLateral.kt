@@ -13,7 +13,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -27,14 +26,13 @@ fun MenuLateral(
     var darkMode by remember { mutableStateOf(true) }
 
     ModalDrawerSheet(
-        containerColor = MaterialTheme.colorScheme.surface
+        drawerContainerColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
                 .padding(24.dp)
                 .fillMaxHeight()
         ) {
-            
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -53,7 +51,6 @@ fun MenuLateral(
             HorizontalDivider(color = Color.Gray.copy(alpha = 0.2f))
             Spacer(modifier = Modifier.height(16.dp))
 
-            
             MenuItem(Icons.Default.Book, "Ver Ramos") { }
             MenuItem(Icons.Default.CloudUpload, "Subir Material") { }
             MenuItem(Icons.Default.Download, "Documentos descargados") { }
@@ -65,7 +62,6 @@ fun MenuLateral(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

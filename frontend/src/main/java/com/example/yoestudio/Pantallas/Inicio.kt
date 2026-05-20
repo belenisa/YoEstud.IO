@@ -1,10 +1,6 @@
 package com.example.yoestudio.Pantallas
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -40,7 +36,6 @@ fun Inicio(
                 .padding(paddingValues)
                 .padding(24.dp)
         ) {
-            
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -59,7 +54,6 @@ fun Inicio(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            
             OutlinedTextField(
                 value = "",
                 onValueChange = { },
@@ -70,8 +64,9 @@ fun Inicio(
                 leadingIcon = { Icon(Icons.Default.Menu, contentDescription = null) },
                 trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = RoundedCornerShape(30.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent
                 )
@@ -79,7 +74,6 @@ fun Inicio(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            
             Text("Historial", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             Spacer(modifier = Modifier.height(16.dp))
             Card(
@@ -96,7 +90,6 @@ fun Inicio(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            
             Text("Configuración Rápida", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             Spacer(modifier = Modifier.height(16.dp))
             Row(
@@ -143,10 +136,6 @@ fun HistorialItem(titulo: String, fecha: String) {
             Text(titulo, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Text(fecha, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(Icons.Default.ArrowForwardIos, contentDescription = null, size = 16.dp, tint = Color.Gray)
+        Icon(Icons.Default.ArrowForwardIos, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.Gray)
     }
-}
-
-private fun Icon(imageVector: androidx.compose.ui.graphics.vector.ImageVector, contentDescription: String?, size: androidx.compose.ui.unit.Dp, tint: Color) {
-    Icon(imageVector = imageVector, contentDescription = contentDescription, modifier = Modifier.size(size), tint = tint)
 }

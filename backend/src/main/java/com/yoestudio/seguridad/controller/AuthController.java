@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,14 +26,16 @@ public class AuthController {
     @PostMapping("/registro")
     public ResponseEntity<?> registrar(@RequestBody RegistroRequest request) {
         if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("El email ya existe");
+            return ResponseEntity.badRequest().body(Map.of("error", "El email ya existe"));
         }
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre());
         usuario.setEmail(request.getEmail());
         usuario.setPassword(request.getPassword());
+        usuario.setTipo(Usuario.TipoUsuario.FREE);
+        usuario.setRolId(2L); 
         usuarioRepository.save(usuario);
-        return ResponseEntity.ok("Usuario registrado con éxito");
+        return ResponseEntity.ok(Map.of("mensaje", "Usuario registrado con éxito"));
     }
 
     @PostMapping("/login")
@@ -42,6 +45,6 @@ public class AuthController {
             String token = jwtUtil.generarToken(usuario.get().getEmail());
             return ResponseEntity.ok(new AuthResponse(token, usuario.get().getNombre()));
         }
-        return ResponseEntity.status(401).body("Credenciales inválidas");
+        return ResponseEntity.status(401).body(Map.of("error", "Credenciales inválidas"));
     }
 }
