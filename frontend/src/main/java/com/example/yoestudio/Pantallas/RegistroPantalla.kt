@@ -1,5 +1,6 @@
 package com.example.yoestudio.Pantallas
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,23 +9,45 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.yoestudio.ViewModel.AuthViewModel
 
 @Composable
-fun RegistroPantalla(navController: NavController) {
+fun RegistroPantalla(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
     var usuario by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var aceptarTerminos by remember { mutableStateOf(false) }
+    
+    val cargando by authViewModel.cargando.collectAsState()
+    val registroExitoso by authViewModel.registroExitoso.collectAsState()
+    val error by authViewModel.error.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(registroExitoso) {
+        if (registroExitoso) {
+            Toast.makeText(context, "Registro exitoso. Inicia sesión.", Toast.LENGTH_LONG).show()
+            navController.popBackStack()
+            authViewModel.resetEstado()
+        }
+    }
+
+    LaunchedEffect(error) {
+        error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color(0xFF0D1B2A))
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -33,7 +56,7 @@ fun RegistroPantalla(navController: NavController) {
             text = "REGISTRO",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = Color.White
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -41,7 +64,7 @@ fun RegistroPantalla(navController: NavController) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1A2B3C))
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -50,9 +73,15 @@ fun RegistroPantalla(navController: NavController) {
                 OutlinedTextField(
                     value = usuario,
                     onValueChange = { usuario = it },
-                    label = { Text("Nombre de Usuario") },
+                    label = { Text("Nombre Completo") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        unfocusedLabelColor = Color.Gray,
+                        focusedLabelColor = Color.White
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -62,7 +91,13 @@ fun RegistroPantalla(navController: NavController) {
                     onValueChange = { email = it },
                     label = { Text("Correo Electrónico") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        unfocusedLabelColor = Color.Gray,
+                        focusedLabelColor = Color.White
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -73,7 +108,13 @@ fun RegistroPantalla(navController: NavController) {
                     label = { Text("Contraseña") },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        unfocusedLabelColor = Color.Gray,
+                        focusedLabelColor = Color.White
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -84,25 +125,33 @@ fun RegistroPantalla(navController: NavController) {
                 ) {
                     Checkbox(
                         checked = aceptarTerminos,
-                        onCheckedChange = { aceptarTerminos = it }
+                        onCheckedChange = { aceptarTerminos = it },
+                        colors = CheckboxDefaults.colors(
+                            uncheckedColor = Color.Gray,
+                            checkedColor = Color(0xFF0000FF)
+                        )
                     )
                     Text(
                         text = "Aceptar Términos y condiciones",
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = Color.White
                     )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
-                    onClick = { /* TODO */ },
-                    enabled = aceptarTerminos,
+                    onClick = { authViewModel.registrar(usuario, email, password) },
+                    enabled = aceptarTerminos && !cargando && usuario.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0000FF))
                 ) {
-                    Text("Registrarse", color = Color.White)
+                    if (cargando) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        Text("Registrarse", color = Color.White)
+                    }
                 }
             }
         }
@@ -110,7 +159,7 @@ fun RegistroPantalla(navController: NavController) {
         Spacer(modifier = Modifier.height(24.dp))
 
         TextButton(onClick = { navController.popBackStack() }) {
-            Text("Volver al Login", color = MaterialTheme.colorScheme.onBackground)
+            Text("Volver al Login", color = Color.White)
         }
     }
 }
