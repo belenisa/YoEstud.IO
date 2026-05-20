@@ -1,29 +1,32 @@
 package com.example.yoestudio.Data.Repository
 
 import com.example.yoestudio.Data.Network.ApiNet
+import com.example.yoestudio.Data.Network.ChatRequest
 import com.example.yoestudio.Domain.Model.Mensaje
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import java.io.File
+import java.util.UUID
 
 class AsistenteRepository {
 
     private val api = ApiNet.asistenteIA
+    private val sesionId = UUID.randomUUID().toString()
 
     suspend fun enviarMensajeIA(prompt: String): Result<Mensaje> {
         return try {
-            val requestBody = prompt.toRequestBody("text/plain".toMediaType())
-            val response = api.enviarMensaje(requestBody)
+            val request = ChatRequest(usuarioId = 1L, sesionId = sesionId, mensaje = prompt)
+            val response = api.enviarMensaje(request)
 
             if (response.isSuccessful) {
-                val texto = response.body() ?: ""
-                if (texto.isBlank()) {
+                val body = response.body()
+                if (body == null) {
                     Result.failure(Exception("La IA no devolvió ninguna respuesta."))
                 } else {
-                    Result.success(Mensaje(texto = texto, esDelUsuario = false))
+                    Result.success(Mensaje(
+                        texto = body.respuesta,
+                        esDelUsuario = false,
+                        esArchivo = body.es_archivo,
+                        archivoId = body.archivo_id,
+                        nombreArchivo = body.nombre_archivo
+                    ))
                 }
             } else {
                 Result.failure(Exception("Error del servidor (${response.code()})"))
@@ -33,29 +36,15 @@ class AsistenteRepository {
         }
     }
 
-    suspend fun enviarArchivoIA(archivoPart: MultipartBody.Part, mensaje: RequestBody): Result<Mensaje> {
+    suspend fun descargarArchivo(archivoId: String): Result<ByteArray> {
         return try {
-            val response = api.enviarArchivoYTexto(mensaje, archivoPart)
-            if (response.isSuccessful) {
-                Result.success(Mensaje(texto = response.body() ?: "", esDelUsuario = false, esArchivo = true, nombreArchivo = "Analisis_Documento.pdf"))
-            } else {
-                Result.failure(Exception("Error al procesar archivo: ${response.code()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun descargarPdf(texto: String): Result<ByteArray> {
-        return try {
-            val requestBody = texto.toRequestBody("text/plain".toMediaType())
-            val response = api.descargarPdf(requestBody)
+            val response = api.descargarArchivo(archivoId)
             if (response.isSuccessful) {
                 val bytes = response.body()?.bytes()
                 if (bytes != null) {
                     Result.success(bytes)
                 } else {
-                    Result.failure(Exception("Cuerpo de respuesta vacío"))
+                    Result.failure(Exception("Archivo vacío"))
                 }
             } else {
                 Result.failure(Exception("Error al descargar: ${response.code()}"))

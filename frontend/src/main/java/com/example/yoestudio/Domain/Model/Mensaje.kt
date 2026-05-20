@@ -5,5 +5,6 @@ data class Mensaje(
     val esDelUsuario: Boolean,
     val timestamp: Long = System.currentTimeMillis(),
     val esArchivo: Boolean = false,
-    val nombreArchivo: String? = null
+    val nombreArchivo: String? = null,
+    val archivoId: String? = null
 )
