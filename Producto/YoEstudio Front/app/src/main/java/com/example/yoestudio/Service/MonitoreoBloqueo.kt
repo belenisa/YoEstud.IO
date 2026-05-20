@@ -16,8 +16,6 @@ class MonitoreoBloqueo : AccessibilityService() {
 
     private fun checkBloqueo() {
 
-        val enModoConcentracion = System.currentTimeMillis() < ConfiguracionBloqueo.tiempoModoConcentracion
-
         val paquete = appActual.takeIf { it.isNotEmpty() } ?: return
 
         val ahora = System.currentTimeMillis()
@@ -27,9 +25,7 @@ class MonitoreoBloqueo : AccessibilityService() {
 
         val bloquear = ahora >= ConfiguracionBloqueo.tiempoFin
 
-        if (
-            (ConfiguracionBloqueo.appsBloqueadas.contains(paquete) || enModoConcentracion) &&
-            bloquear
+        if (ConfiguracionBloqueo.appsBloqueadas.contains(paquete) && bloquear
         ) {
 
             if (ahora - ultimoBloqueo < 1500) return

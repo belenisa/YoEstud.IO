@@ -44,6 +44,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -67,41 +68,45 @@ fun PantallaConfiguracion(
     val pm = context.packageManager
 
     // Obtenemos la lista de apps
-    val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+    val apps = remember {
+        pm.getInstalledApplications(PackageManager.GET_META_DATA)
+    }
     val seleccionadas by viewModel.appsSeleccionadas.collectAsState()
 
-    val appsUsuario = apps.filter { app ->
-        val nombreApp = pm.getApplicationLabel(app).toString()
-        val launchIntent = try {
-            pm.getLaunchIntentForPackage(app.packageName)
-                ?: pm.getLeanbackLaunchIntentForPackage(app.packageName)
-        } catch (e: Exception) {
-            null
+    val appsUsuario = remember {
+        apps.filter { app ->
+            val nombreApp = pm.getApplicationLabel(app).toString()
+            val launchIntent = try {
+                pm.getLaunchIntentForPackage(app.packageName)
+                    ?: pm.getLeanbackLaunchIntentForPackage(app.packageName)
+            } catch (e: Exception) {
+                null
+            }
+
+            val paquetesBloqueados = listOf(
+                "com.android.settings",
+                "com.android.systemui",
+                "com.android.traceur",
+                "com.android.contacts",
+                "com.google.android.contacts",
+                "com.android.phone",
+                "com.android.dialer",
+                "com.android.mms",
+                "com.google.android.dialer",
+                "com.google.android.apps.messaging",
+                "com.android.simtoolkit",
+                "com.android.stk",
+                "com.google.android.apps.restore",
+                "com.android.switchaccess",
+                "com.google.android.marvin.talkback"
+            )
+
+            launchIntent != null &&
+                    app.packageName !in paquetesBloqueados &&
+                    !nombreApp.contains("Switch Access", ignoreCase = true)
+        }.sortedBy {
+            pm.getApplicationLabel(it).toString()
         }
-
-        val paquetesBloqueados = listOf(
-            "com.android.settings",
-            "com.android.systemui",
-            "com.android.traceur",
-            "com.android.contacts",
-            "com.google.android.contacts",
-            "com.android.phone",
-            "com.android.dialer",
-            "com.android.mms",
-            "com.google.android.dialer",
-            "com.google.android.apps.messaging",
-            "com.android.simtoolkit",
-            "com.android.stk",
-            "com.google.android.apps.restore",
-            "com.android.switchaccess",
-            "com.google.android.marvin.talkback"
-        )
-        launchIntent != null &&
-                app.packageName !in paquetesBloqueados &&
-                !nombreApp.contains("Switch Access", ignoreCase = true)
-
-    }.sortedBy {
-        pm.getApplicationLabel(it).toString()
     }
     Scaffold(
         topBar = {
@@ -141,11 +146,18 @@ fun PantallaConfiguracion(
                         onClick = {
                             val ahora = System.currentTimeMillis()
 
-                            // 🔥 10 minutos = 600000 ms
                             ConfiguracionBloqueo.tiempoModoConcentracion =
                                 ahora + (10 * 60 * 1000)
 
-                            Toast.makeText(context, "Modo concentración activado (10 min)", Toast.LENGTH_SHORT).show()
+                            // ✅ Guardar apps seleccionadas
+                            ConfiguracionBloqueo.appsBloqueadas =
+                                appsUsuario.map { it.packageName }
+
+                            Toast.makeText(
+                                context,
+                                "Modo concentración activado (10 min)",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -204,8 +216,7 @@ fun PantallaConfiguracion(
                                 seleccionado = isSelected,
                                 segundos = segundos,
                                 onCheckedChange = { checked ->
-                                    viewModel.RecordarAppSeleccionada(app.packageName, checked)
-                                    if (!checked) viewModel.actualizarSegundos(app.packageName, "")
+                                    viewModel.RecordarAppSeleccionada(app.packageName, checked, appsUsuario)
                                 },
                                 onSegundosChange = { nuevosSegundos ->
                                     viewModel.actualizarSegundos(app.packageName, nuevosSegundos)

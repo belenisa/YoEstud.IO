@@ -1,6 +1,7 @@
 package com.example.yoestudio.ViewModel
 
 
+import android.content.pm.ApplicationInfo
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import com.example.yoestudio.utils.ConfiguracionBloqueo
@@ -37,18 +38,23 @@ class ConfiguracionView: ViewModel() {
         ConfiguracionBloqueo.tiemposPorApp = mapaTiemposInt
     }
 
-    fun RecordarAppSeleccionada(packageName: String, checked: Boolean) {
+    fun RecordarAppSeleccionada(
+        packageName: String,
+        checked: Boolean,
+        appsUsuario: List<ApplicationInfo>
+    ) {
 
-        val current = _appsSeleccionadas.value.toMutableList()
+        val current = _appsSeleccionadas.value.toMutableSet()
 
-        if (current.contains(packageName)) {
-            current.remove(packageName)
-        } else {
+        val esValida = appsUsuario.any { it.packageName == packageName }
+
+        if (checked && esValida) {
             current.add(packageName)
+        } else if (!checked) {
+            current.remove(packageName)
         }
 
-        _appsSeleccionadas.value = current
-        //ConfiguracionBloqueo.appsBloqueadas = current
+        _appsSeleccionadas.value = current.toList()
     }
-
+    
 }
