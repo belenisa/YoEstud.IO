@@ -12,7 +12,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +25,7 @@ import com.example.yoestudio.Global.MenuLateral
 import com.example.yoestudio.Service.MonitoreoBloqueo
 import com.example.yoestudio.ViewModel.ConfiguracionView
 import com.example.yoestudio.ui.theme.AppNavigation
+import com.example.yoestudio.ui.theme.YoEstudioTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : AppCompatActivity() {
@@ -29,38 +34,44 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+
             val navController = rememberNavController()
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             val scope = rememberCoroutineScope()
             val configuracionViewModel: ConfiguracionView = viewModel()
 
+            val darkModeState = remember { mutableStateOf(false) } // ✅ cambio clave
 
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    MenuLateral(
-                        navController = navController,
-                        drawerState = drawerState,
-                        scope = scope
-                    )
-                }
-            ) {
+            YoEstudioTheme(darkTheme = darkModeState.value) {
 
-                Scaffold(
-                    floatingActionButton = {
-                        BotonAsistente(navController = navController)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        MenuLateral(navController, drawerState, scope)
                     }
-                ) { paddingValues ->
+                ) {
 
-                    Box(modifier = Modifier.padding(paddingValues)) {
+                    Scaffold(
+                        floatingActionButton = {
+                            BotonAsistente(navController)
+                        }
+                    ) { paddingValues ->
 
-                        // Navegación central de la app
-                        AppNavigation(
-                            navController = navController,
-                            drawerState = drawerState,
-                            scope = scope
-                            ,configuracionViewModel = configuracionViewModel
-                        )
+                        Box(modifier = Modifier.padding(paddingValues)) {
+
+                            AppNavigation(
+                                navController = navController,
+                                drawerState = drawerState,
+                                scope = scope,
+                                configuracionViewModel = configuracionViewModel,
+
+                                darkMode = darkModeState.value,
+                                onToggleTheme = { nuevo ->
+                                    println("CAMBIO REAL: $nuevo") // 🔥 debug
+                                    darkModeState.value = nuevo
+                                }
+                            )
+                        }
                     }
                 }
             }

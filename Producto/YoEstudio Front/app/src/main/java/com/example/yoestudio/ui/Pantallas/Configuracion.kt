@@ -6,6 +6,7 @@ import android.widget.Toast
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -38,15 +39,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -61,7 +66,9 @@ import kotlinx.coroutines.launch
 fun PantallaConfiguracion(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    viewModel: ConfiguracionView
+    viewModel: ConfiguracionView,
+    darkMode: Boolean,
+    onToggleTheme: (Boolean) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -98,7 +105,8 @@ fun PantallaConfiguracion(
                 "com.android.stk",
                 "com.google.android.apps.restore",
                 "com.android.switchaccess",
-                "com.google.android.marvin.talkback"
+                "com.google.android.marvin.talkback",
+                "com.example.yoestudio"
             )
 
             launchIntent != null &&
@@ -116,16 +124,20 @@ fun PantallaConfiguracion(
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
                         Icon(Icons.Default.Menu, contentDescription = null)
                     }
-                }
+                }, colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
+
             )
         }
     ) { paddingValues ->
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-        ) {
+        ){
 
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -133,39 +145,79 @@ fun PantallaConfiguracion(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // MODO CONCENTRACIÓN
-                Card(
+                // MODO OSCURO
+                Box(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(8.dp)
-                ) {
-
-                    Button(
-                        onClick = {
-                            val ahora = System.currentTimeMillis()
-
-                            ConfiguracionBloqueo.tiempoModoConcentracion =
-                                ahora + (10 * 60 * 1000)
-
-                            // ✅ Guardar apps seleccionadas
-                            ConfiguracionBloqueo.appsBloqueadas =
-                                appsUsuario.map { it.packageName }
-
-                            Toast.makeText(
-                                context,
-                                "Modo concentración activado (10 min)",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(60.dp)
+                        .fillMaxWidth()
+                )
+                {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     ) {
-                        Text("Modo Concentración")
-                    }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
 
+                            Text(
+                                text = "Modo Oscuro",
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Switch(
+                                checked = darkMode,
+                                onCheckedChange = onToggleTheme,
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                                    uncheckedThumbColor = Color.White,
+                                    uncheckedTrackColor = Color.LightGray
+                                )
+                            )
+
+
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // MODO CONCENTRACIÓN
+                Button(
+                    onClick = {
+                        val ahora = System.currentTimeMillis()
+
+                        ConfiguracionBloqueo.tiempoModoConcentracion =
+                            ahora + (10 * 60 * 1000)
+
+                        ConfiguracionBloqueo.appsBloqueadas =
+                            appsUsuario.map { it.packageName }
+
+                        Toast.makeText(
+                            context,
+                            "Modo concentración activado (10 min)",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        "Modo Concentración",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -176,6 +228,9 @@ fun PantallaConfiguracion(
                         viewModel.guardarConfiguracionCompleta()
                         Toast.makeText(context, "Cambios aplicados", Toast.LENGTH_SHORT).show()
                     },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -184,7 +239,10 @@ fun PantallaConfiguracion(
                 ) {
                     Icon(Icons.Default.Done, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Guardar Configuración")
+                    Text(
+                        "Guardar Configuración",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -194,9 +252,12 @@ fun PantallaConfiguracion(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
-                        .weight(1f), // ✅ mejor que height fija
+                        .weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(8.dp)
+                    elevation = CardDefaults.cardElevation(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
 
                     LazyColumn(
@@ -269,9 +330,11 @@ fun FilaApp(
         Text(
             text = nombreApp,
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
             maxLines = 1
         )
+
 
         // Input de Segundos
         OutlinedTextField(
@@ -289,7 +352,9 @@ fun FilaApp(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             textStyle = MaterialTheme.typography.bodySmall,
             colors = TextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f)
             )
         )
     }

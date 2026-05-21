@@ -56,5 +56,5 @@ class ConfiguracionView: ViewModel() {
 
         _appsSeleccionadas.value = current.toList()
     }
-    
+
 }

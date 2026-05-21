@@ -2,6 +2,8 @@ package com.example.yoestudio.ui.theme
 
 import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -12,23 +14,32 @@ import com.example.yoestudio.ui.Pantallas.PantallaIA
 import com.example.yoestudio.ViewModel.AsistenteView
 import com.example.yoestudio.ViewModel.ConfiguracionView
 import kotlinx.coroutines.CoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     drawerState: DrawerState,
     scope: CoroutineScope,
-    configuracionViewModel: ConfiguracionView
+    configuracionViewModel: ConfiguracionView,
+    darkMode: Boolean,
+    onToggleTheme: (Boolean) -> Unit
 ) {
+
+
     NavHost(
         navController = navController,
         startDestination = "inicio"
     ) {
+
         composable("inicio") {
             Inicio(
                 drawerState = drawerState,
                 scope = scope,
-                navController = navController   // ✅ agregado
+                navController = navController
             )
         }
 
@@ -36,7 +47,9 @@ fun AppNavigation(
             PantallaConfiguracion(
                 drawerState = drawerState,
                 scope = scope,
-                viewModel = configuracionViewModel
+                viewModel = configuracionViewModel,
+                darkMode = darkMode,
+                onToggleTheme = onToggleTheme
             )
         }
 
@@ -45,8 +58,9 @@ fun AppNavigation(
             PantallaIA(viewModel = viewModel)
         }
 
-        composable("bloqueopantalla"){
-
+        composable("bloqueopantalla") {
+            // vacío por ahora
         }
     }
 }
+
