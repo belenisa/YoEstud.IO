@@ -30,13 +30,16 @@ private val DarkColorScheme = darkColorScheme(
 
 private val LightColorScheme = lightColorScheme(
 
-    primary = Color(0xFF2E2E2E),
+    primary = Color(0xFF000000),
     onPrimary = Color.White,
 
-    background = Color(0xFF94A9B8),
+    primaryContainer = Color(0xFF91D1F1),
+    onPrimaryContainer = Color.White,
+
+    background = Color(0xFF5DA4CE),
     onBackground = Color.Black,
 
-    surface = Color(0xFF2E2E2E),
+    surface = Color(0xFF000000),
     onSurface = Color.White
 )
 

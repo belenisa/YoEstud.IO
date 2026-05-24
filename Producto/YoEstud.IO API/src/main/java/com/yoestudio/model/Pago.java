@@ -3,7 +3,7 @@
  * Entidad que representa los pagos realizados por los usuarios.
  * 22 de abril de 2026
  */
-package com.yoestudio.pago.model;
+package com.yoestudio.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

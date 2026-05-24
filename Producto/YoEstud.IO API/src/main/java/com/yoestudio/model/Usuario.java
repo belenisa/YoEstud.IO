@@ -3,7 +3,7 @@
  * Entidad que representa a los usuarios del sistema YoEstud.IO.
  * 22 de abril de 2026
  */
-package com.yoestudio.usuario.model;
+package com.yoestudio.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -45,8 +45,9 @@ public class Usuario {
     private TipoUsuario tipo;
 
     // Relación con roles (se implementará detalladamente en el siguiente paso si es necesario)
-    @Column(name = "rol_id")
-    private Long rolId;
+    @ManyToOne
+    @JoinColumn(name = "rol_id")
+    private Rol rolId;
 
     public enum TipoUsuario {
         FREE, PREMIUM

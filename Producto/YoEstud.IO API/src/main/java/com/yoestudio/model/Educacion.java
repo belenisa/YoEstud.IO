@@ -1,5 +1,5 @@
+package com.yoestudio.model;
 
-package  com.yoestudio.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,14 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "imagenes")
-public class Imagen {
-    
+@Table(name = "educacion")
+public class Educacion {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nombre")
-    private String nombre;
+    private String tipoEducacion;
 
 }

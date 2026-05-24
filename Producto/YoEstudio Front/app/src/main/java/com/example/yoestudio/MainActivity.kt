@@ -12,18 +12,21 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.yoestudio.Global.BotonAsistente
 import com.example.yoestudio.Global.MenuLateral
 import com.example.yoestudio.Service.MonitoreoBloqueo
 import com.example.yoestudio.ViewModel.ConfiguracionView
+import com.example.yoestudio.ViewModel.UsuarioView
 import com.example.yoestudio.ui.theme.AppNavigation
 import com.example.yoestudio.ui.theme.YoEstudioTheme
 
@@ -35,22 +38,35 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
 
+            val context = LocalContext.current
+
             val navController = rememberNavController()
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             val scope = rememberCoroutineScope()
             val configuracionViewModel: ConfiguracionView = viewModel()
 
-            val darkModeState = remember { mutableStateOf(false) } // ✅ cambio clave
+            val usuarioViewModel: UsuarioView = viewModel()
+            val usuario by usuarioViewModel.usuarioActual
+            LaunchedEffect(Unit) {
+                usuarioViewModel.crearUsuarioAuto(context)
+            }
 
-            YoEstudioTheme(darkTheme = darkModeState.value) {
+            val darkMode by configuracionViewModel.darkMode
+
+            YoEstudioTheme(darkTheme = darkMode) {
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        MenuLateral(navController, drawerState, scope)
+                        MenuLateral(navController = navController,
+                            drawerState = drawerState,
+                            scope = scope,
+                            darkMode = darkMode,
+                            usuario = usuario,
+                            viewModel = usuarioViewModel
+                        )
                     }
                 ) {
-
                     Scaffold(
                         floatingActionButton = {
                             BotonAsistente(navController)
@@ -64,13 +80,13 @@ class MainActivity : AppCompatActivity() {
                                 drawerState = drawerState,
                                 scope = scope,
                                 configuracionViewModel = configuracionViewModel,
-
-                                darkMode = darkModeState.value,
-                                onToggleTheme = { nuevo ->
-                                    println("CAMBIO REAL: $nuevo") // 🔥 debug
-                                    darkModeState.value = nuevo
-                                }
+                                darkMode = darkMode,
+                                onToggleTheme = {
+                                    configuracionViewModel.modoOscuro(it)
+                                },
+                                usuario = usuario
                             )
+
                         }
                     }
                 }

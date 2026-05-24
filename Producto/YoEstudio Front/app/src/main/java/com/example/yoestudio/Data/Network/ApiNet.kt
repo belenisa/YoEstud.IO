@@ -31,4 +31,8 @@ object  ApiNet {
 
     // Interfaces globales
     val asistenteIA: AsistenteIA = retrofit.create(AsistenteIA::class.java)
+    val usuarioService: UsuariosService = retrofit.create(UsuariosService::class.java)
+    val rolService: RolService = retrofit.create(RolService::class.java)
+
+
 }

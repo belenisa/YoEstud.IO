@@ -51,7 +51,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -119,16 +118,14 @@ fun PantallaConfiguracion(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configuración") },
+                title = { Text("Configuracion") },
                 navigationIcon = {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(Icons.Default.Menu, contentDescription = null)
+                    IconButton(onClick = {
+                        scope.launch { drawerState.open() }
+                    }) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menú")
                     }
-                }, colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
-
+                }
             )
         }
     ) { paddingValues ->
@@ -171,18 +168,11 @@ fun PantallaConfiguracion(
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyLarge
                             )
+
                             Switch(
                                 checked = darkMode,
-                                onCheckedChange = onToggleTheme,
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                                    uncheckedThumbColor = Color.White,
-                                    uncheckedTrackColor = Color.LightGray
-                                )
+                                onCheckedChange = onToggleTheme
                             )
-
-
                         }
                     }
                 }
@@ -354,7 +344,7 @@ fun FilaApp(
             colors = TextFieldDefaults.colors(
                 focusedTextColor = MaterialTheme.colorScheme.onSurface,
                 unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f)
+                disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
         )
     }

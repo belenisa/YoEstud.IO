@@ -33,5 +33,5 @@ fun abrirPantallaBloqueo(context: Context, app: String) {
     intent.putExtra("app", app)
     intent.putExtra("tiempo", tiempoConfigurado)
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    context.startActivity(intent)
+    //context.startActivity(intent)
 }

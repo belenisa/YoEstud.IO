@@ -1,24 +1,24 @@
-/*
- * YoEstudioApplication.java
- * Clase principal de YoEstud.IO.
- * 22 de abril de 2026
- */
 package com.yoestudio;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 @SpringBootApplication
+@EnableJpaRepositories(basePackages = "com.yoestudio.repository")
+@EntityScan(basePackages = "com.yoestudio.model")
 public class YoEstudioApplication {
 
     public static void main(String[] args) {
         try {
             loadApiKeys();
         } catch (IOException e) {
-            // Fallback a variables de entorno
+            // fallback silencioso
         }
         SpringApplication.run(YoEstudioApplication.class, args);
     }

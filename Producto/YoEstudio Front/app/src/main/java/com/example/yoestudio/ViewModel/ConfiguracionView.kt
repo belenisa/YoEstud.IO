@@ -3,9 +3,10 @@ package com.example.yoestudio.ViewModel
 
 import android.content.pm.ApplicationInfo
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.yoestudio.utils.ConfiguracionBloqueo
-//import com.example.yoestudio.utils.ConfiguracionBloqueo
+import androidx.compose.runtime.State
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -15,7 +16,8 @@ class ConfiguracionView: ViewModel() {
 
     private val _segundosApps = mutableStateMapOf<String, String>()
     val segundosApps: Map<String, String> = _segundosApps
-
+    private val _darkMode = mutableStateOf(false)
+    val darkMode: State<Boolean> = _darkMode
 
 
     fun actualizarSegundos(packageName: String, segundos: String) {
@@ -56,5 +58,10 @@ class ConfiguracionView: ViewModel() {
 
         _appsSeleccionadas.value = current.toList()
     }
+
+    fun modoOscuro(value: Boolean) {
+        _darkMode.value = value
+    }
+
 
 }
