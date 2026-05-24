@@ -34,5 +34,7 @@ object  ApiNet {
     val usuarioService: UsuariosService = retrofit.create(UsuariosService::class.java)
     val rolService: RolService = retrofit.create(RolService::class.java)
 
+    val preguntaService: PreguntaService = retrofit.create(PreguntaService::class.java)
+
 
 }

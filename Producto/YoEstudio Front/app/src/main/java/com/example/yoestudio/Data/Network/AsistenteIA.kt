@@ -17,15 +17,11 @@ interface AsistenteIA {
         @Part archivo: MultipartBody.Part
     ): Response<String>
 
-    // Puedes mantener tus otros métodos aquí abajo
-
     @POST("api/ai/chat")
     suspend fun enviarMensaje(
         @Body mensaje: RequestBody
     ): Response<String>
 
-
-    // Se conecta con @PostMapping("/estudiar")
     @POST("api/ai/estudiar")
     suspend fun generarCuestionario(@Body texto: String): Response<String>
 }
