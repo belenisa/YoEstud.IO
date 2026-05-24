@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +32,8 @@ fun BloqueoPantalla(
     enModoConcentracion: Boolean,
     onDesbloquear: () -> Unit
 ) {
+
+
     // Estado para la cuenta regresiva local
     var segundosRestantes by remember { mutableStateOf(segundos) }
 
@@ -41,30 +44,77 @@ fun BloqueoPantalla(
             segundosRestantes--
         }
     }
+    //temporal mientras se agrega de forma más dinamica
+    val preguntas = listOf(
+        "¿Cuánto es 2 + 2?" to "4",
+        "Capital de Chile" to "Santiago",
+        "¿5 x 3?" to "15"
+    )
+    var indice by remember { mutableStateOf(0) }
+    var respuesta by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf(false) }
+    var preguntaAleatoria by remember { mutableStateOf(preguntas.random()) }
 
     Box(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "Espera para usar $app ⏳",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            if (!enModoConcentracion) {
-                Button(onClick = onDesbloquear) {
-                    Text("Desbloquear app ahora")
-                }
+            //temporal mientras se agrega de forma más dinamica
+            val pregunta = if (enModoConcentracion) {
+                preguntas[indice]
             } else {
-                Text(
-                    text = "Modo concentración activo 🔒",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                preguntaAleatoria
             }
 
+            Text(
+                text = "Responde para continuar",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(pregunta.first)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = respuesta,
+                onValueChange = { respuesta = it },
+                label = { Text("Respuesta") }
+            )
+
+            if (error) {
+                Text("Respuesta incorrecta", color = androidx.compose.ui.graphics.Color.Red)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    if (respuesta.trim().equals(pregunta.second, ignoreCase = true)) {
+
+                        if (enModoConcentracion) {
+                            if (indice < preguntas.size - 1) {
+                                indice++
+                            } else {
+                                indice = 0
+                            }
+                            respuesta = ""
+                            error = false
+
+                        } else {
+                            onDesbloquear()
+                        }
+
+                    } else {
+                        error = true
+                        respuesta = ""
+                    }
+                }
+            ) {
+                Text("Responder")
+            }
 
         }
     }

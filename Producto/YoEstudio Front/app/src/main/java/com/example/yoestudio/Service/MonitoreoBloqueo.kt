@@ -67,11 +67,11 @@ class MonitoreoBloqueo : AccessibilityService() {
 
         val paquete = event.packageName?.toString() ?: return
 
-        // ❌ ignorar apps no relevantes
+        //  ignora apps no relevantes
         if (paquete == packageName) return
         if (paquete.contains("inputmethod")) return
 
-        // ✅ DETECTAR launcher (pantalla inicio)
+        // DETECTA launcher (pantalla inicio)
         if (paquete.contains("launcher")) {
             appActual = "" // 🔥 AQUÍ ESTABA EL BUG
             return
@@ -82,7 +82,7 @@ class MonitoreoBloqueo : AccessibilityService() {
         val tiempo = ConfiguracionBloqueo.tiemposPorApp[paquete]
             ?: ConfiguracionBloqueo.tiempoDefault
 
-        // ✅ cambio de app
+        // cambio de app
         if (paquete != appActual) {
             appActual = paquete
 
