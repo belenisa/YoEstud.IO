@@ -7,7 +7,9 @@ package com.yoestudio.usuario.service;
 
 import com.yoestudio.usuario.model.Usuario;
 import com.yoestudio.usuario.repository.UsuarioRepository;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,20 +22,44 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<Usuario> findAll() {
         return usuarioRepository.findAll();
     }
 
-    public Optional<Usuario> findById(Long id) {
+    public Optional<Usuario> findById(@NonNull Long id) {
         return usuarioRepository.findById(id);
     }
 
-    public Usuario save(Usuario usuario) {
-        return usuarioRepository.save(usuario);
+    
+    public Usuario save(@NonNull Usuario usuario) {
+        usuario.setPassword(
+        passwordEncoder.encode(usuario.getPassword())
+    );
+
+    return usuarioRepository.save(usuario);
     }
 
-    public void deleteById(Long id) {
+    
+    public Usuario login(String nombre, String password) {
+
+        Usuario usuario = usuarioRepository.findByNombre(nombre)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(password, usuario.getPassword())) {
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        return usuario;
+    }
+
+
+
+    public void deleteById(@NonNull Long id) {
         usuarioRepository.deleteById(id);
     }
+
+    
 }
