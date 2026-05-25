@@ -41,6 +41,17 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Usuario> login(@RequestBody Usuario usuario) {
+
+        Usuario usuarioLogin = usuarioService.login(
+            usuario.getNombre(),
+            usuario.getPassword()
+        );
+
+        return ResponseEntity.ok(usuarioLogin);
+    }
+
     @PostMapping
     public ResponseEntity<Usuario> create(@Valid @RequestBody Usuario usuario) {
         usuario.setId(null);
