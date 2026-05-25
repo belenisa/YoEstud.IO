@@ -16,12 +16,10 @@ class UsuarioView : ViewModel() {
     var usuarioActual = mutableStateOf<UsuarioModelo?>(null)
         private set
 
-
     fun login(
         context: Context,
         nombre: String,
         password: String,
-        onSuccess: () -> Unit,
         onError: () -> Unit
     ) {
         viewModelScope.launch {
@@ -37,8 +35,6 @@ class UsuarioView : ViewModel() {
                     .apply()
 
                 usuarioActual.value = usuario
-
-                onSuccess()
             }
 
             result.onFailure {
@@ -88,9 +84,6 @@ class UsuarioView : ViewModel() {
                         .apply()
 
                     usuarioActual.value = it
-
-                    cargarUsuario(context)
-
                 }
 
                 result.onFailure {

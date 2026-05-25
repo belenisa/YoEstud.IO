@@ -41,6 +41,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -57,6 +58,15 @@ fun IngresarUsuarioPantalla (
     var password by remember { mutableStateOf("") }
     val formularioValido =
         nombreUsuario.isNotBlank() && password.isNotBlank()
+
+    val usuario = viewModel.usuarioActual.value
+
+    LaunchedEffect(usuario) {
+        if (usuario != null) {
+            navController.navigate("inicio")
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -139,9 +149,6 @@ fun IngresarUsuarioPantalla (
                                 context,
                                 nombreUsuario,
                                 password,
-                                onSuccess = {
-                                    navController.navigate("inicio")
-                                },
                                 onError = {
                                     Toast.makeText(
                                         context,

@@ -48,7 +48,9 @@ class MainActivity : AppCompatActivity() {
             val usuarioViewModel: UsuarioView = viewModel()
             val usuario by usuarioViewModel.usuarioActual
             LaunchedEffect(Unit) {
-                usuarioViewModel.cargarUsuario(context)
+                if (usuarioViewModel.usuarioActual.value == null) {
+                    usuarioViewModel.crearUsuarioAuto(context)
+                }
             }
 
             val darkMode by configuracionViewModel.darkMode
