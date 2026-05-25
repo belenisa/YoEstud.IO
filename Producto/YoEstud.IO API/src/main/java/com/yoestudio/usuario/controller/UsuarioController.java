@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -42,14 +43,14 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Usuario> login(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
 
-        Usuario usuarioLogin = usuarioService.login(
-            usuario.getNombre(),
-            usuario.getPassword()
-        );
+        String nombre = body.get("nombre");
+        String password = body.get("password");
 
-        return ResponseEntity.ok(usuarioLogin);
+        Usuario u = usuarioService.login(nombre, password);
+
+        return ResponseEntity.ok(u);
     }
 
     @PostMapping
