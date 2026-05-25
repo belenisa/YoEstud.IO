@@ -28,7 +28,8 @@ fun AppNavigation(
     configuracionViewModel: ConfiguracionView,
     darkMode: Boolean,
     onToggleTheme: (Boolean) -> Unit,
-    usuario: UsuarioModelo?
+    usuario: UsuarioModelo?,
+    usuarioViewModel: UsuarioView
 ) {
 
 
@@ -69,11 +70,9 @@ fun AppNavigation(
 
         composable("crearUsuario") {
 
-            val viewModel: UsuarioView = viewModel()
-
             CrearUsuarioPantalla(
                 navController = navController,
-                viewModel = viewModel,
+                viewModel = usuarioViewModel,
                 drawerState = drawerState,
                 scope = scope
             )
@@ -81,11 +80,9 @@ fun AppNavigation(
 
         composable("ingresarUsuario") {
 
-            val viewModel: UsuarioView = viewModel()
-
             IngresarUsuarioPantalla(
                 navController = navController,
-                viewModel = viewModel,
+                viewModel = usuarioViewModel,
                 drawerState = drawerState,
                 scope = scope
             )

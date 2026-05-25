@@ -67,12 +67,10 @@
 		</dependency>
 
 		<!-- MongoDB: activar al usar -->
-		<!--
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
-		-->
 
 		<!-- IA Gemini -->
 		<dependency>

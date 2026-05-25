@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             val usuarioViewModel: UsuarioView = viewModel()
             val usuario by usuarioViewModel.usuarioActual
             LaunchedEffect(Unit) {
-                usuarioViewModel.crearUsuarioAuto(context)
+                usuarioViewModel.cargarUsuario(context)
             }
 
             val darkMode by configuracionViewModel.darkMode
@@ -84,7 +84,8 @@ class MainActivity : AppCompatActivity() {
                                 onToggleTheme = {
                                     configuracionViewModel.modoOscuro(it)
                                 },
-                                usuario = usuario
+                                usuario = usuario,
+                                usuarioViewModel = usuarioViewModel
                             )
 
                         }

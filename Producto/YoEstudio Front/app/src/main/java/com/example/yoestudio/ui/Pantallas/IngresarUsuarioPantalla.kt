@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun IngresarUsuarioPantalla (
     navController: NavController,
-    viewModel: UsuarioView = viewModel(),
+    viewModel: UsuarioView,
     drawerState: DrawerState,
     scope: CoroutineScope
 ) {
@@ -75,7 +75,7 @@ fun IngresarUsuarioPantalla (
 
         Column(
             modifier = Modifier
-                .padding(paddingValues) // 🔥 MUY IMPORTANTE
+                .padding(paddingValues)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

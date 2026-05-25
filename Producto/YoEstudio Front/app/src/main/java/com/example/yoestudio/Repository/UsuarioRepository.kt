@@ -12,7 +12,6 @@ class UsuarioRepository ( private val service: UsuariosService = ApiNet.usuarioS
             if (isSuccessful) {
                 val body = body()
                 if (body != null) return body
-                // Usa code() y message() como métodos, y reemplaza -> correcto
                 throw Exception(
                     when (code()) {
                         204, 205 -> "OK sin contenido (HTTP ${code()})"
@@ -21,7 +20,6 @@ class UsuarioRepository ( private val service: UsuariosService = ApiNet.usuarioS
                 )
             } else {
                 val msg = try { errorBody()?.string() } catch (_: Exception) { null }
-                //code() y message() (no $code ni $message)
                 throw Exception("HTTP ${code()}: ${msg ?: message() ?: "Error desconocido"}")
             }
         }

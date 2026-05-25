@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CrearUsuarioPantalla(
     navController: NavController,
-    viewModel: UsuarioView = viewModel(),
+    viewModel: UsuarioView,
     drawerState: DrawerState,
     scope: CoroutineScope
 ) {
