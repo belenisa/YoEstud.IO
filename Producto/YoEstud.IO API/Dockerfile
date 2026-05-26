@@ -11,7 +11,7 @@ COPY . .
 RUN chmod +x gradlew
 
 # Usamos el Gradle Wrapper del proyecto
-RUN ./gradlew build -x test --no-daemo
+RUN ./gradlew build -x test --no-daemon
 
 # =========================
 # Etapa 2: Runtime
