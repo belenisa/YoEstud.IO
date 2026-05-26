@@ -1,34 +1,32 @@
 package com.example.yoestudio
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.yoestudio.Global.BotonAsistente
 import com.example.yoestudio.Global.MenuLateral
-import com.example.yoestudio.Service.MonitoreoBloqueo
 import com.example.yoestudio.ViewModel.ConfiguracionView
 import com.example.yoestudio.ViewModel.UsuarioView
 import com.example.yoestudio.ui.theme.AppNavigation
 import com.example.yoestudio.ui.theme.YoEstudioTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : AppCompatActivity() {
@@ -36,8 +34,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+        }
 
+        setContent {
             val context = LocalContext.current
 
             val navController = rememberNavController()
@@ -57,6 +58,13 @@ class MainActivity : AppCompatActivity() {
 
             YoEstudioTheme(darkTheme = darkMode) {
 
+                val systemUiController = rememberSystemUiController()
+                val useDarkIcons = !darkMode
+                systemUiController.setStatusBarColor(
+                    color = MaterialTheme.colorScheme.surface,
+                    darkIcons = !darkMode
+                )
+
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
@@ -70,6 +78,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 ) {
                     Scaffold(
+                        contentWindowInsets = WindowInsets(0),
                         floatingActionButton = {
                             BotonAsistente(navController)
                         }
