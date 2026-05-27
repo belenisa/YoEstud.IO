@@ -23,7 +23,7 @@ public class Pregunta {
     private String asignatura;
 
     @ManyToOne
-    @JoinColumn(name = "idUsuarios")
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     @ManyToOne
