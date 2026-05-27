@@ -105,7 +105,8 @@ fun PantallaConfiguracion(
                 "com.google.android.apps.restore",
                 "com.android.switchaccess",
                 "com.google.android.marvin.talkback",
-                "com.example.yoestudio"
+                "com.example.yoestudio",
+                "com.android,files"
             )
 
             launchIntent != null &&
