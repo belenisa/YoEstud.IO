@@ -10,7 +10,7 @@ COPY . .
 # CORRECCIÓN AQUÍ: Otorgar permisos de ejecución al wrapper
 RUN chmod +x gradlew
 
-ENV GRADLE_OPTS="-Xmx384m"
+ENV JAVA_OPTS="-Xmx256m"
 
 # Usamos el Gradle Wrapper del proyecto
 RUN ./gradlew build -x test --no-daemon --max-workers=1

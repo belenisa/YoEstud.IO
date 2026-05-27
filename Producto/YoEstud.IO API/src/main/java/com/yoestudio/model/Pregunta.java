@@ -1,5 +1,7 @@
 package com.yoestudio.model;
 
+import com.yoestudio.usuario.model.Usuario;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
