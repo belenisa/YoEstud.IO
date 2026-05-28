@@ -20,7 +20,7 @@ public class YoEstudioApplication {
     }
 
     private static void loadApiKeys() throws IOException {
-        String[] paths = {"local.properties", "backend/local.properties", "../local.properties"};
+        String[] paths = {"../local.properties", "local.properties", "backend/local.properties"};
         for (String path : paths) {
             if (Files.exists(Paths.get(path))) {
                 Files.lines(Paths.get(path)).forEach(line -> {
@@ -29,7 +29,6 @@ public class YoEstudioApplication {
                         System.setProperty(parts[0].trim(), parts[1].trim());
                     }
                 });
-                break;
             }
         }
     }

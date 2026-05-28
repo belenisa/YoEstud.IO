@@ -2,11 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "com.example.yoestudio"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.yoestudio"
@@ -36,6 +37,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
     buildFeatures {
         compose = true
     }
@@ -58,6 +62,7 @@ dependencies {
     implementation(libs.androidx.compose.navigation)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.runtime)
+    implementation(libs.core.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -74,5 +79,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
 }
