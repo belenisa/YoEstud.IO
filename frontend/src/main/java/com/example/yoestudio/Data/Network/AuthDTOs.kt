@@ -13,5 +13,16 @@ data class RegistroRequest(
 
 data class AuthResponse(
     val token: String,
-    val username: String
+    val username: String,
+    val usuarioId: Long
+)
+
+data class RecuperarRequest(
+    val email: String
+)
+
+data class VerificarCodigoRequest(
+    val email: String,
+    val codigo: String,
+    val nuevaPassword: String
 )
