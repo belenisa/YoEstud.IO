@@ -2,12 +2,16 @@ package com.example.yoestudio.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Paleta Modo Oscuro (Principal)
+val DarkBackground = Color(0xFF0D1B2A)
+val DarkSurface = Color(0xFF1A2B3C)
+val DarkPrimary = Color(0xFF0000FF)
+val DarkOnSurface = Color(0xFFFFFFFF)
+val DarkSecondary = Color(0xFF415A77)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-val AzulCielo = Color(0xFFB0C8DB)
+// Paleta Modo Claro
+val LightBackground = Color(0xFFD6E4F0)
+val LightSurface = Color(0xFFF0F4F8)
+val LightPrimary = Color(0xFF0000FF)
+val LightOnSurface = Color(0xFF1A1A2E)
+val LightSecondary = Color(0xFFB0C4D8)
