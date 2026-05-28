@@ -17,6 +17,15 @@ public class PreguntaController {
     @Autowired
     private PreguntaService preguntaService;
 
+    @GetMapping
+    public ResponseEntity<List<Pregunta>>getAll() {
+        List<Pregunta> pregunta = preguntaService.findAll();
+        if (pregunta.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(pregunta);
+    }
+
     @PostMapping
     public ResponseEntity<Pregunta> crear(@RequestBody Pregunta pregunta) {
 

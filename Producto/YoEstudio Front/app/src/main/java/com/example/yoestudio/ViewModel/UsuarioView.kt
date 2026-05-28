@@ -1,7 +1,9 @@
 package com.example.yoestudio.ViewModel
 
 import android.content.Context
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.yoestudio.Data.Modelo.UsuarioModelo
@@ -15,7 +17,7 @@ class UsuarioView : ViewModel() {
     private val repo = UsuarioRepository()
     var usuarioActual = mutableStateOf<UsuarioModelo?>(null)
         private set
-
+    var entro by mutableStateOf(false)
     fun login(
         context: Context,
         nombre: String,
@@ -32,9 +34,14 @@ class UsuarioView : ViewModel() {
 
                 prefs.edit()
                     .putLong("usuario_id", usuario.id ?: -1)
+                    .putString("usuario_nombre", usuario.nombre)
+                    .putString("usuario_email", usuario.email)
+                    .putString("usuario_tipo", usuario.tipo.name)
+                    .putBoolean("logueado", true)
                     .apply()
 
                 usuarioActual.value = usuario
+                entro = true
             }
 
             result.onFailure {
@@ -60,9 +67,10 @@ class UsuarioView : ViewModel() {
     fun crearUsuarioAuto(context: Context) {
 
         val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val yaExiste = prefs.getBoolean("usuario_creado", false)
+        val id = prefs.getLong("usuario_id", -1)
+        val nombre = prefs.getString("usuario_nombre", "")
 
-        if (!yaExiste) {
+        if (id == -1L || nombre.isNullOrEmpty()) {
 
             viewModelScope.launch {
 
@@ -76,18 +84,25 @@ class UsuarioView : ViewModel() {
 
                 val result = repo.crear(usuario)
 
-                result.onSuccess {
+                result.onSuccess { usuario ->
+
+                    val nombreSeguro = if (usuario.nombre.isNullOrEmpty()) {
+                        generarNombre()
+                    } else {
+                        usuario.nombre
+                    }
 
                     prefs.edit()
-                        .putBoolean("usuario_creado", true)
-                        .putLong("usuario_id", it.id ?: -1)
+                        .putLong("usuario_id", usuario.id ?: -1)
+                        .putString("usuario_nombre", nombreSeguro)
+                        .putString("usuario_email", usuario.email)
+                        .putString("usuario_tipo", usuario.tipo.name)
+                        .putLong("usuario_auto_id", usuario.id ?: -1)
+                        .putString("usuario_auto_nombre", nombreSeguro)
+                        .putString("usuario_auto_email", usuario.email)
                         .apply()
 
-                    usuarioActual.value = it
-                }
-
-                result.onFailure {
-                    println("Error creando usuario: ${it.message}")
+                    usuarioActual.value = usuario.copy(nombre = nombreSeguro)
                 }
             }
 
@@ -121,8 +136,11 @@ class UsuarioView : ViewModel() {
                 val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
                 prefs.edit()
-                    .putBoolean("usuario_creado", true)
                     .putLong("usuario_id", it.id ?: -1)
+                    .putString("usuario_nombre", it.nombre)
+                    .putString("usuario_email", it.email)
+                    .putString("usuario_tipo", it.tipo.name)
+                    .putBoolean("logueado", true)
                     .apply()
 
                 usuarioActual.value = it
@@ -143,25 +161,22 @@ class UsuarioView : ViewModel() {
 
     fun cargarUsuario(context: Context) {
 
-        val id = obtenerUsuarioId(context)
+        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val nombre = prefs.getString("usuario_nombre", "NO HAY")
 
-        if (id != -1L) {
+        println("DEBUG NOMBRE: $nombre")
 
-            viewModelScope.launch {
-
-                val result = repo.obtener(id)
-
-                result.onSuccess { usuario ->
-                    usuarioActual.value = usuario
-                }
-
-                result.onFailure {
-                    println("Error cargando usuario")
-                }
-            }
-        }
+        usuarioActual.value = UsuarioModelo(
+            id = prefs.getLong("usuario_id", -1),
+            nombre = prefs.getString("usuario_nombre", "") ?: "",
+            email = prefs.getString("usuario_email", "") ?: "",
+            password = "",
+            tipo = TipoUsuario.valueOf(
+                prefs.getString("usuario_tipo", TipoUsuario.FREE.name)!!
+            ),
+            rolid = 2L
+        )
     }
-
 }
 
 

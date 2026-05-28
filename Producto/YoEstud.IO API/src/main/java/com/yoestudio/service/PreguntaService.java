@@ -13,6 +13,10 @@ public class PreguntaService {
     @Autowired
     private PreguntaRepository preguntaRepository;
 
+    public List<Pregunta> findAll() {
+        return preguntaRepository.findAll();
+    }
+
     public Pregunta guardar(Pregunta pregunta) {
         return preguntaRepository.save(pregunta);
     }

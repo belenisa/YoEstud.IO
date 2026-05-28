@@ -31,7 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.yoestudio.ViewModel.UsuarioView
 import android.widget.Toast
@@ -60,13 +59,16 @@ fun IngresarUsuarioPantalla (
         nombreUsuario.isNotBlank() && password.isNotBlank()
 
     val usuario = viewModel.usuarioActual.value
-
-    LaunchedEffect(usuario) {
-        if (usuario != null) {
-            navController.navigate("inicio")
+    val entro = viewModel.entro
+    LaunchedEffect(entro) {
+        if (entro && usuario != null) {
+                kotlinx.coroutines.delay(50)
+                navController.navigate("inicio") {
+                popUpTo("ingresarUsuario") { inclusive = true }
+            }
+            viewModel.entro = false
         }
     }
-
 
     Scaffold(
         topBar = {

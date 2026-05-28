@@ -1,5 +1,6 @@
 package com.example.yoestudio
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -7,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -49,8 +51,13 @@ class MainActivity : AppCompatActivity() {
             val usuarioViewModel: UsuarioView = viewModel()
             val usuario by usuarioViewModel.usuarioActual
             LaunchedEffect(Unit) {
-                if (usuarioViewModel.usuarioActual.value == null) {
+                val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                val id = prefs.getLong("usuario_id", -1)
+
+                if (id == -1L) {
                     usuarioViewModel.crearUsuarioAuto(context)
+                } else {
+                    usuarioViewModel.cargarUsuario(context)
                 }
             }
 
@@ -78,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 ) {
                     Scaffold(
-                        contentWindowInsets = WindowInsets(0),
+                        contentWindowInsets = WindowInsets.safeDrawing,
                         floatingActionButton = {
                             BotonAsistente(navController)
                         }
