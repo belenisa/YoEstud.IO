@@ -23,7 +23,22 @@ public class ChatService {
     @Autowired
     private ArchivoService archivoService;
 
-    public Map<String, Object> procesarMensaje(Long usuarioId, String sesionId, String mensajeUsuario) {
+    @Autowired
+    private FileExtractService fileExtractService;
+
+    public Map<String, Object> procesarMensaje(Long usuarioId, String sesionId, String mensajeUsuario, String nombreArchivo, String archivoBase64, String nombreUsuario) {
+        String mensajeFinal = mensajeUsuario;
+
+        if (nombreArchivo != null && archivoBase64 != null) {
+            try {
+                byte[] decodedBytes = java.util.Base64.getDecoder().decode(archivoBase64);
+                String textoExtraido = fileExtractService.extraerTexto(nombreArchivo, decodedBytes);
+                mensajeFinal = "[Archivo: " + nombreArchivo + "]\nContenido del archivo:\n" + textoExtraido + "\n\nPregunta del usuario: " + mensajeUsuario;
+            } catch (Exception e) {
+                mensajeFinal = mensajeUsuario + "\n(Error al leer archivo " + nombreArchivo + ": " + e.getMessage() + ")";
+            }
+        }
+
         MensajesChat chat = chatRepository.findBySesionId(sesionId)
                 .orElseGet(() -> {
                     MensajesChat nuevoChat = new MensajesChat();
@@ -38,11 +53,20 @@ public class ChatService {
                 .map(m -> Map.of("role", m.getRol(), "content", m.getContenido()))
                 .collect(Collectors.toList());
 
-        GeminiRespuesta geminiRespuesta = geminiService.generarRespuesta(mensajeUsuario, historial);
+        GeminiRespuesta geminiRespuesta = geminiService.generarRespuesta(mensajeFinal, historial, nombreUsuario);
+
+        if (geminiRespuesta.isEsLimpiar()) {
+            chatRepository.deleteBySesionId(sesionId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("respuesta", "Historial limpiado correctamente.");
+            response.put("es_archivo", false);
+            response.put("es_limpiar", true);
+            return response;
+        }
 
         MensajesChat.Mensaje mUser = new MensajesChat.Mensaje();
         mUser.setRol("user");
-        mUser.setContenido(mensajeUsuario);
+        mUser.setContenido(mensajeUsuario); 
         mUser.setFecha(new Date());
         chat.getMensajes().add(mUser);
 

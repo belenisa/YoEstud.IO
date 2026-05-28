@@ -12,8 +12,17 @@ interface AsistenteIA {
     @POST("api/auth/registro")
     suspend fun registro(@Body request: RegistroRequest): Response<ResponseBody>
 
+    @POST("api/auth/recuperar-contrasena")
+    suspend fun recuperarContrasena(@Body request: RecuperarRequest): Response<ResponseBody>
+
+    @POST("api/auth/verificar-codigo")
+    suspend fun verificarCodigo(@Body request: VerificarCodigoRequest): Response<ResponseBody>
+
     @POST("api/chat/mensaje")
     suspend fun enviarMensaje(@Body request: ChatRequest): Response<ChatResponse>
+
+    @GET("api/chat/historial/{usuarioId}")
+    suspend fun obtenerHistorial(@Path("usuarioId") usuarioId: Long): Response<List<HistorialSesion>>
 
     @GET("api/archivos/{id}")
     @Streaming

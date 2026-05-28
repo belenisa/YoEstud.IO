@@ -12,4 +12,5 @@ public class GeminiRespuesta {
     private boolean esArchivo;
     private String nombreArchivo;
     private String contenidoArchivo;
+    private boolean esLimpiar;
 }

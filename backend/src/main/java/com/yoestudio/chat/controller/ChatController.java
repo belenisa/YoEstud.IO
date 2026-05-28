@@ -11,6 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/chat")
+@CrossOrigin(origins = "*")
 public class ChatController {
 
     @Autowired
@@ -18,7 +19,15 @@ public class ChatController {
 
     @PostMapping("/mensaje")
     public Map<String, Object> enviarMensaje(@RequestBody ChatRequestDTO request) {
-        return chatService.procesarMensaje(request.getUsuarioId(), request.getSesionId(), request.getMensaje());
+        System.out.println("📩 Recibida petición en /api/chat/mensaje para usuario: " + request.getUsuarioId());
+        return chatService.procesarMensaje(
+            request.getUsuarioId(), 
+            request.getSesionId(), 
+            request.getMensaje(),
+            request.getNombreArchivo(),
+            request.getArchivoBase64(),
+            request.getNombreUsuario()
+        );
     }
 
     @GetMapping("/historial/{usuarioId}")
