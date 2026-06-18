@@ -1,0 +1,49 @@
+INSTRUCCIONES PARA ABRIR EL PROYECTO
+
+Backend (Spring Boot - Java 21):
+- Ruta: Producto/backend/
+- Abrir con: IntelliJ IDEA (o VS Code con extensiones Java/Gradle)
+- Iniciar: .\gradlew :backend:bootRun (desde Producto/)
+- Puerto: 3000
+- Logs: Producto/backend.log
+- API Key Gemini: en SPRING_AI_GOOGLE_AI_API_KEY (application.properties o variable de entorno)
+- Matar proceso anterior: Get-Process -Name "java" | Stop-Process -Force
+- Esperar ~25s a que levante
+
+Frontend (Android - Kotlin Compose):
+- Ruta: Producto/frontend/
+- Abrir con: Android Studio
+- Compilar: .\gradlew :frontend:assembleDebug (desde Producto/)
+- APK: frontend/build/outputs/apk/debug/
+- URL backend: frontend/.../Data/Network/ApiNet.kt (BASE_URL)
+- Si cambias API key del backend, solo reinicias backend (no recompilas frontend)
+
+Ngrok (tunel para celular):
+- Conecta localhost:3000 a URL publica
+- URL actual en ApiNet.kt
+- Si ngrok se cae, actualizar BASE_URL y recompilar
+
+Estructura archivos clave:
+Backend:
+- GeminiService.java → conexion Gemini + parsing JSON respuestas
+- ChatService.java → logica chat, guardado MongoDB
+- ArchivoService.java → creacion PDF con PDFBox + sanitizacion texto
+- AuthController.java → login/registro JWT
+- SecurityConfig.java → rutas publicas
+- application.properties → config (puerto, BD, API keys)
+Frontend:
+- AsistenteView.kt → ViewModel chat (AndroidViewModel)
+- AsistenteRepository.kt → llamadas API + historial
+- AsistentePantalla.kt → UI chat Compose
+- LoginPantalla.kt → login con CredentialManager
+- TokenManager.kt → DataStore persistencia local
+- ApiNet.kt → Retrofit (BASE_URL)
+- AppNavigation.kt → navegacion pantallas
+
+Bases de datos:
+- PostgreSQL (NeonDB): tabla "usuarios"
+- MongoDB (Atlas): colecciones "mensajes_chat" y "archivos_generados"
+- Credenciales en application.properties del backend
+
+Compilar todo:
+.\gradlew :backend:compileJava :frontend:assembleDebug
