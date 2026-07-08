@@ -77,13 +77,17 @@ fun MenuLateral(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Items del Menú
-            MenuItem(Icons.Default.LibraryBooks, "Mis Ramos") { }
+            MenuItem(Icons.Default.LibraryBooks, "Mis Ramos") {
+                navController.navigate("ramos")
+            }
             MenuItem(Icons.Default.FileUpload, "Subir Material") { }
             MenuItem(Icons.Default.FolderZip, "Documentos") { }
             MenuItem(Icons.Default.AutoAwesome, "Chat con IA") {
                 navController.navigate("pantalla_ia")
                 scope.launch { drawerState.close() }
             }
+
+            Spacer(modifier = Modifier.weight(1f))
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -152,7 +156,8 @@ fun MenuLateral(
 }
 
 @Composable
-fun MenuItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+fun MenuItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit,
+             ) {
     NavigationDrawerItem(
         icon = { Icon(icon, contentDescription = null) },
         label = { Text(label, fontWeight = FontWeight.Medium) },

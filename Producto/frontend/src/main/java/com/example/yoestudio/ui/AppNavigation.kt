@@ -2,6 +2,7 @@ package com.example.yoestudio.ui.theme
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -18,19 +20,22 @@ import com.example.yoestudio.Pantallas.*
 import com.example.yoestudio.Utils.TokenManager
 import com.example.yoestudio.ViewModel.AsistenteView
 import com.example.yoestudio.ViewModel.ConcentracionViewModel
+import com.example.yoestudio.ViewModel.PublicacionesViewModel
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     drawerState: DrawerState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    modifier: Modifier = Modifier
 ) {
     val concentracionViewModel: ConcentracionViewModel = viewModel()
     val context = LocalContext.current
     val tokenManager = remember { TokenManager(context) }
     val token by tokenManager.getToken.collectAsState(initial = null)
     val revisado = remember { mutableStateOf(false) }
+    val publicacionesViewModel: PublicacionesViewModel = viewModel()
 
     LaunchedEffect(token) {
         if (!revisado.value) {
@@ -42,6 +47,7 @@ fun AppNavigation(
             }
         }
     }
+    Box(modifier = modifier) {
 
     NavHost(
         navController = navController,
@@ -73,7 +79,8 @@ fun AppNavigation(
                 drawerState = drawerState,
                 scope = scope,
                 navController = navController,
-                viewModel = concentracionViewModel
+                viewModel = concentracionViewModel,
+                publicacionesViewModel = publicacionesViewModel
             )
         }
 
@@ -100,5 +107,12 @@ fun AppNavigation(
                 navController = navController
             )
         }
+
+        composable("ramos") {
+            RamosPantalla(
+                navController = navController
+            )
+        }
+    }
     }
 }

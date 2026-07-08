@@ -43,6 +43,8 @@ fun RegistroPantalla(navController: NavController, authViewModel: AuthViewModel 
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
+    var errorEmail by remember { mutableStateOf<String?>(null) }
+
 
     LaunchedEffect(registroExitoso) {
         if (registroExitoso) {
@@ -110,21 +112,32 @@ fun RegistroPantalla(navController: NavController, authViewModel: AuthViewModel 
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = {
+                        email = it
+                        errorEmail = null
+                    },
                     label = { Text("Correo Electrónico") },
-                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)) },
+
+                    leadingIcon = {
+                        Icon(Icons.Default.Email, contentDescription = null)
+                    },
+
+                    isError = errorEmail != null,
+
+                    supportingText = {
+                        errorEmail?.let {
+                            Text(it, color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                    )
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+
+                    shape = RoundedCornerShape(12.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -182,6 +195,12 @@ fun RegistroPantalla(navController: NavController, authViewModel: AuthViewModel 
                 Button(
                     onClick = { 
                         focusManager.clearFocus()
+                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                            errorEmail = "Correo inválido"
+                            return@Button
+                        } else {
+                            errorEmail = null
+                        }
                         authViewModel.registrar(usuario, email, password) 
                     },
                     enabled = aceptarTerminos && !cargando && usuario.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
@@ -192,7 +211,8 @@ fun RegistroPantalla(navController: NavController, authViewModel: AuthViewModel 
                     if (cargando) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
                     } else {
-                        Text("REGISTRARSE", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("REGISTRARSE", color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
             }

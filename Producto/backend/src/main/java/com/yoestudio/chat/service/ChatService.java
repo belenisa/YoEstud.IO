@@ -53,7 +53,7 @@ public class ChatService {
                 .map(m -> Map.of("role", m.getRol(), "content", m.getContenido()))
                 .collect(Collectors.toList());
 
-        GeminiRespuesta geminiRespuesta = geminiService.generarRespuesta(mensajeFinal, historial, nombreUsuario);
+        GeminiRespuesta geminiRespuesta = geminiService.generarRespuesta(mensajeFinal, historial, nombreUsuario,nombreArchivo, archivoBase64);
 
         if (geminiRespuesta.isEsLimpiar()) {
             chatRepository.deleteBySesionId(sesionId);

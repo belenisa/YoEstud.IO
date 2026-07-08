@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.CountDownTimer
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
+import com.example.yoestudio.concentracion.ConcentracionBloqueo
 import com.example.yoestudio.concentracion.ConcentracionService
 import com.example.yoestudio.concentracion.PermisoUsageStatsHelper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +18,11 @@ class ConcentracionViewModel : ViewModel() {
     // Lista de paquetes de apps seleccionadas para "monitorear"
     private val _appsSeleccionadas = MutableStateFlow<Set<String>>(emptySet())
     val appsSeleccionadas: StateFlow<Set<String>> = _appsSeleccionadas.asStateFlow()
+
+
+    private val _segundosApps = mutableStateMapOf<String, String>()
+    val segundosApps: Map<String, String> = _segundosApps
+
 
     // Estado del temporizador
     private val _tiempoRestante = MutableStateFlow(0L) // en milisegundos
@@ -37,21 +44,32 @@ class ConcentracionViewModel : ViewModel() {
 
     fun tieneAppsSeleccionadas(): Boolean = _appsSeleccionadas.value.isNotEmpty()
 
+
+    fun actualizarSegundos(packageName: String, segundos: String) {
+        if (segundos.all { it.isDigit() }) {
+            _segundosApps[packageName] = segundos
+
+            val tiempoInt = segundos.toIntOrNull() ?: 0
+
+            ConcentracionBloqueo.guardarTiempoPorApp(packageName, tiempoInt)
+        }
+    }
+
     fun iniciarEnfoque(context: Context, minutos: Long) {
+
+        if (_appsSeleccionadas.value.isEmpty()) return
+
         val millis = minutos * 60 * 1000
+        val ahora = System.currentTimeMillis()
+        ConcentracionBloqueo.esModoConcentracion = true
+
+        ConcentracionBloqueo.appsBloqueadas = _appsSeleccionadas.value.toList()
+        ConcentracionBloqueo.tiemposPorApp =
+            _segundosApps.mapValues { it.value.toIntOrNull() ?: 10 }
+        ConcentracionBloqueo.tiempoModoConcentracion = ahora + millis
+
         _estaActivo.value = true
         _tiempoRestante.value = millis
-
-        // Iniciar Servicio de Reenganche Oficial
-        val intent = Intent(context, ConcentracionService::class.java).apply {
-            putStringArrayListExtra("apps_bloqueadas", ArrayList(_appsSeleccionadas.value.toList()))
-        }
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
-        } else {
-            context.startService(intent)
-        }
 
         timer?.cancel()
         timer = object : CountDownTimer(millis, 1000) {
@@ -69,7 +87,12 @@ class ConcentracionViewModel : ViewModel() {
         timer?.cancel()
         _estaActivo.value = false
         _tiempoRestante.value = 0
-        context.stopService(Intent(context, ConcentracionService::class.java))
+
+        ConcentracionBloqueo.esModoConcentracion = false
+        ConcentracionBloqueo.appsBloqueadas = emptyList()
+        ConcentracionBloqueo.tiempoFin = Long.MAX_VALUE
+        ConcentracionBloqueo.tiempoModoConcentracion = 0
+
     }
 
     fun cancelarEnfoque(context: Context) {
@@ -77,7 +100,7 @@ class ConcentracionViewModel : ViewModel() {
     }
 
     fun tienePermisos(context: Context): Boolean {
-        return PermisoUsageStatsHelper.tienePermiso(context)
+        return PermisoUsageStatsHelper.estaAccessibilityActiva(context)
     }
 
     fun solicitarPermisos(context: Context) {
@@ -93,5 +116,16 @@ class ConcentracionViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         timer?.cancel()
+    }
+    fun guardarConfiguracionCompleta() {
+        ConcentracionBloqueo.appsBloqueadas = _appsSeleccionadas.value.toList()
+
+        val mapaTiemposInt = _segundosApps.mapValues { entry ->
+            entry.value.toIntOrNull() ?: 10
+        }
+
+        ConcentracionBloqueo.esModoConcentracion = true
+        ConcentracionBloqueo.tiemposPorApp = mapaTiemposInt
+        ConcentracionBloqueo.tiempoFin = 0
     }
 }

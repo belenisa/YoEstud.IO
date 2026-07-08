@@ -4,8 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.yoestudio.ui.theme.AppNavigation
 import com.example.yoestudio.ui.theme.YoEstudioTheme
@@ -47,7 +50,8 @@ class MainActivity : ComponentActivity() {
                     AppNavigation(
                         navController = navController,
                         drawerState = drawerState,
-                        scope = scope
+                        scope = scope,
+                        modifier = Modifier.padding(padding)
                     )
                 }
             }

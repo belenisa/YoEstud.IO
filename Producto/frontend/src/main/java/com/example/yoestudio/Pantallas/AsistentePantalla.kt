@@ -1,6 +1,9 @@
 package com.example.yoestudio.Pantallas
 
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,6 +32,9 @@ import androidx.navigation.NavHostController
 import com.example.yoestudio.Domain.Model.Mensaje
 import com.example.yoestudio.Utils.TokenManager
 import com.example.yoestudio.ViewModel.AsistenteView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,22 +55,64 @@ fun PantallaIA(viewModel: AsistenteView, navController: NavHostController) {
     var nombreArchivo by remember { mutableStateOf<String?>(null) }
     var archivoBase64 by remember { mutableStateOf<String?>(null) }
 
+    // Contexto de corrutina para realizar la lectura de archivos pesados en hilos secundarios
+    val scope = rememberCoroutineScope()
+
     // Launcher para seleccionar archivos
-    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri: android.net.Uri? ->
-        uri?.let {
-            val contentResolver = context.contentResolver
-            val cursor = contentResolver.query(it, null, null, null, null)
-            cursor?.use { c ->
-                val nameIndex = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
-                if (c.moveToFirst()) {
-                    nombreArchivo = c.getString(nameIndex)
+        if (uri == null) {
+            Log.d("PantallaIA", "Selección cancelada por el usuario.")
+            return@rememberLauncherForActivityResult
+        }
+
+        scope.launch {
+            try {
+                val contentResolver = context.contentResolver
+
+                // Otorgar permisos persistentes para garantizar el acceso al stream en segundo plano
+                try {
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (e: SecurityException) {
+                    Log.w("PantallaIA", "No se pudo persistir el permiso URI de forma permanente: ${e.message}")
                 }
+
+                // Extraer el nombre legible del archivo en un hilo I/O
+                var name: String? = null
+                withContext(Dispatchers.IO) {
+                    contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                        val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                        if (cursor.moveToFirst() && nameIndex != -1) {
+                            name = cursor.getString(nameIndex)
+                        }
+                    }
+                }
+                nombreArchivo = name ?: "archivo_adjunto.pdf"
+
+                // Leer y codificar a Base64 en segundo plano liberando el hilo principal (Main Thread)
+                val resultadoBase64 = withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(uri)?.use { inputStream ->
+                        val bytes = inputStream.readBytes()
+                        // NO_WRAP previene cortes de cadena inválidos que rompen parsers en Spring Boot
+                        android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+                    }
+                }
+
+                if (resultadoBase64 != null) {
+                    archivoBase64 = resultadoBase64
+                    Toast.makeText(context, "Archivo adjunto: $nombreArchivo", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "No fue posible procesar el archivo.", Toast.LENGTH_SHORT).show()
+                }
+
+            } catch (e: Exception) {
+                Log.e("PantallaIA", "Fallo al procesar el archivo seleccionado", e)
+                Toast.makeText(context, "Error al cargar el archivo del sistema.", Toast.LENGTH_LONG).show()
             }
-            val bytes = contentResolver.openInputStream(it)?.readBytes()
-            archivoBase64 = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
-            Toast.makeText(context, "Archivo adjunto: $nombreArchivo", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -169,7 +217,13 @@ fun PantallaIA(viewModel: AsistenteView, navController: NavHostController) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = { launcher.launch("application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document") },
+                        onClick = { launcher.launch(
+                            arrayOf(
+                                "application/pdf",
+                                "application/msword",
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            )
+                        ) },
                         modifier = Modifier.size(40.dp)
                     ) {
                         Icon(Icons.Default.AddCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)

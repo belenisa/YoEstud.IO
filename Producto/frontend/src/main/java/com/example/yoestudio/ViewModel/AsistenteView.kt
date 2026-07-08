@@ -68,8 +68,24 @@ class AsistenteView(application: Application) : AndroidViewModel(application) {
                     }
                 }
                 .onFailure { error ->
+
+                    val errorMsg = error.localizedMessage ?: ""
+
+                    val textoError =
+                        when {
+                            errorMsg.contains("503") || errorMsg.contains("Service Unavailable", true) ->
+
+                                "Somos pobres, tenga paciencia con la IA \nInsista nuevamente más tarde."
+
+                            errorMsg.contains("429") || errorMsg.contains("quota", true) ->
+                            "Se acabo el presupuesto, le recuerdo que somos pobres."
+
+                            else ->
+                                "Error: $errorMsg"
+                        }
+
                     _mensajes.value += Mensaje(
-                        texto = "Error: ${error.localizedMessage}",
+                        texto = textoError,
                         esDelUsuario = false
                     )
                 }

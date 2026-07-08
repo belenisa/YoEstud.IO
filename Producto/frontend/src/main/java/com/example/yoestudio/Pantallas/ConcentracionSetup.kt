@@ -4,12 +4,10 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -28,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.yoestudio.ViewModel.ConcentracionViewModel
+import com.example.yoestudio.concentracion.ConcentracionBloqueo
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -154,6 +153,11 @@ fun PantallaConcentracionSetup(
                 Button(
                     onClick = { 
                         if (viewModel.tienePermisos(context)) {
+
+                            ConcentracionBloqueo.appsBloqueadas = appsSeleccionadas.toList()
+                            ConcentracionBloqueo.tiemposPorApp =
+                                viewModel.segundosApps.mapValues { it.value.toIntOrNull() ?: 10 }
+
                             mostrarTimePicker = true 
                         } else {
                             viewModel.solicitarPermisos(context)

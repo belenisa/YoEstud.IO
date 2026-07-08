@@ -1,6 +1,8 @@
 package com.example.yoestudio.Data.Network
 
-import com.example.yoestudio.BuildConfig
+import com.example.yoestudio.Data.Service.ComentariosService
+import com.example.yoestudio.Data.Service.PreguntaService
+import com.example.yoestudio.Data.Service.PublicaconesService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -38,9 +40,10 @@ object ApiNet {
         .build()
 
     val asistenteIA: AsistenteIA = retrofit.create(AsistenteIA::class.java)
+    val apiPreguntas: PreguntaService = retrofit.create(PreguntaService::class.java)
 
-    
-    
-    
-    
+    val apiPublicaciones: PublicaconesService = retrofit.create(PublicaconesService::class.java)
+
+    val apiComentarios: ComentariosService by lazy { retrofit.create(ComentariosService::class.java) }
+
 }
